@@ -1,0 +1,212 @@
+\documentclass{article}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  total={170mm,257mm},
+  left=20mm,
+  top=20mm,
+}
+\usepackage{mathtools}
+\usepackage{stackengine}
+\usepackage{xeCJK}
+\setCJKmainfont{Songti TC Light}
+\usepackage{tikz}
+\usetikzlibrary{calc, arrows}
+\usepackage{graphicx}
+\newcommand\hash{\mathbin{\mathpalette\xhash\relax}}
+\newcommand{\xhash}[2]{\ooalign{%
+  $#1\xxhash{#1}{-45}$\cr
+  $#1\xxhash{#1}{45}$\cr
+  }%
+}
+\newcommand{\xxhash}[2]{\rotatebox[origin=c]{#2}{$#1\parallel$}}
+
+\begin{document}
+
+\section*{共乘問題}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+  \item 可利用前述之model
+  \item Rider為car pool中之共享車輛(M to M)
+  \item 餐廳為共乘旅客之出發地點
+  \item 客戶所在地（送貨點）為乘客之目的地
+  \item 食物運送箱之客量為共乘車輛可搭載之人數
+  \item 對乘客之QoS指標可含
+    \begin{enumerate}
+      \def\labelenumii{\arabic{enumii}.}
+      \item Pick up time
+      \item Travel time
+      \item Arrival time
+      \item 共乘人數
+      \item 分攤費用
+      \item 共乘路徑與最短路徑之差值等
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{經多給定點之最短路徑問題(S to M)}
+E.g. 機車接送學生 or 某員工開個pick up同仁一同上班，若為後者可進一步考慮公平性問題
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+  \item 由A出發，目的地為Z
+  \item 途中需經\(U_1, U_2, …, U_n\) (無需依序)之給定點 \((U_i, U_i') \in L’\)
+  \item Modeled as \(G(N, L)\), 將\(U_1 ~ U_n\)利用node splitting技術產出artificial link集合\(L’\)
+  \item 可將n必經點排序，再找出依序之最短路徑，但複雜度為\(n!\)，過高
+  \item
+    \begin{align*}\tag{LP}
+      min & \sum\limits_{p \in P_z} \sum\limits_{l \in L \cup L'} x_p s_{pl} a_l && \text{where } l = \text{const of link, } a_l = 0,\ \forall l \in L' \\
+      & (P_z \text{: 所有由A至Z路徑所成之集合}) \\
+      s.t. & \sum\limits_{p \in P_z} x_p = 1 \tag{1} \\
+      & x_p = 0 \ or \ 1 && \forall p \in P_z \tag{2} \\
+      \text{(To be relaxed)} & \sum\limits_{p \in P_z} x_p s_{pl} = 1 && \forall l \in L' \tag{3}
+    \end{align*}
+\end{enumerate}
+
+\begin{itemize}
+  \item 第(3)式保證最短路徑會經過 \(U_1,U_2,...U_n\)
+  \item 經relaxed後，對應之arc weight (LR multipliers) 可為± or 0,若為負則LR中做短路徑問題即不可用Dijkstra，而須改用 e.g.~Bellman-Ford with max hop constraint (避免負迴圈)
+\end{itemize}
+
+\newpage
+將前述經特定多點之最短路徑問題修改為每一\(U_i\)有一需經過之對應\(u_i\)，同時所標路徑必須滿足先經\(U_i\)後經\(u_i\)
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+  \item 有趣之問題為合乎所有\(U_i\)，均須前於\(u_i\)條件之permutations共有多少種？
+  \item math formulation: (\(u_i\)亦經node splitting並增加artificial links\(\in L''\))
+  
+    \{令\(U_i\)之集合為\(V\), \(u_i\)之集合為\(U\),\(i \in \{1,2,...,n\}\)\}
+
+    \begin{align*}
+      min & \sum\limits_{p \in P_z} \sum\limits_{l \in L \cup L' \cup L''} x_p s_{pl} a_l \\
+      s.t. & \sum\limits_{p \in P_z} x_p = 1 && for\ U_i \ \& \ u_i, i \in \{1,2,...,n\} \tag{1} \\
+      & x_p = 0 \ or \ 1 && \forall p \in P_z \tag{2} \\
+      & \text{(link \(l\) 若在最短路徑上，則 \(y_l = 1\)，否則為 0)} \\
+      & \sum\limits_{p \in P_z} x_p s_{pl} = y_l && \forall l \in L \cup L' \cup L'' \tag{3} \\
+      & y_l = 1 && \forall l \in L' \cup L"" \tag{4} \\
+      & \sum\limits_{p \in P_w} z_p s_{pl} \leq y_l && \forall w \in V \cup U = W \tag{5} \\
+      & \text{(保證計算到 \(U_i\) 及 \(u_i\) 所用之路徑 \("z_p"\) 重疊於A至Z之路徑)} \\
+      & \sum\limits_{p \in P_w} z_p = 1 && \forall w \in W \tag{6} \\
+      & z_p = 0 \ or \ 1 \tag{7} \\
+      & \sum\limits_{l \in L \cup L'} \sum\limits_{p \in Q_{U_i}} z_p s_{pl} a_l \leq \sum\limits_{l \in L \cup L'} \sum\limits_{p \in Q_{u_i}} z_p s_{pl} a_l && \forall i \in \{1,2,,...,n\} \tag{8} \\
+      & \text{(保證\(U_i\)先\(u_i\)後)} \\
+      & \text{(\(Q_{u_i}\)為A至\(U_i\)所有路徑之集合\(Q_{u_i},...,u_i,..., i \in \{1,2,3,...,n\} = R\))} \\
+    \end{align*}
+\end{enumerate}
+
+於前面之 formulation 中可加入各客戶 \(u \in \{1,2,...,n\} = R\) 所要求之QoS，如此則需加入admission control機制
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+  \item 定義客戶集 $\{1,2,...,n\} = R$
+  \item 定義各客戶之“獨享”收費為$r_i,\ i \in R$
+  \item 重新定義前頁中之$y_l,\ l \in L' \cup L''$為若$i \in R$被允入，則對應之2個$y_l$ (個別對應於$U_i$及$u_i$分裂後之 artificial links)之值設為1，否則為0
+  \item 令 $e(U_i)$ 為 the link corresponding to that in L' \\
+        令 $f(u_i)$ 為 the link corresponding to that in L''
+  \item 目標函數改為 $max \sum\limits_{i \in R} y_{e(U_i)} r_i$
+  \item Constraint (3) 改為 $\sum_{p \in P_z} x_p s_{pl} \leq y_l \hspace{10pt} \forall l \in L' \cup L''$ \\
+        (若 i 被允入則獲 $r_i$ 收益，且A至Z之路徑必須經過 i 於 L' 及 L'' 對應之 links)
+  \item Constraint (4) 改為 $y_{e(U_i)} = y_{f(u_i)} \hspace{23pt} \forall i \in R$ \\
+        (i 於 L' 及 L'' 中對應 links 所對應之兩 $y_l$ 必須等值)
+\end{enumerate}
+
+\newpage
+\subsection*{就前述共乘服務提出公平之付費機制}
+(忽略以下論述，直接跳至下頁 $a \rightarrow a'$ 及 $b \rightarrow b' 之例$)
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+  \item 可比較對應任一客戶 $i$ “獨享”與“共享”後之 QoS 差異，含前述五項之頭四項
+  \item 總計費可考慮“單人依旅程計費”乘以 $\alpha_i (\alpha_i \leq 1)$ 以反映共乘服務帶給乘客之價值(當乘客人數始終為1時，$\alpha_i = 1$；當共享人數越多時，$\alpha_i$ 可當一convex且遞減曲線)
+  \item 以2所計算出之總計費(先考慮 $\alpha_i = 1$ 之情況以簡化問題)，再依 1 所計算出之 QoS 差異及
+  \item 另可定義 $\beta_j$ 為 $\ j \in D$ 因共乘所”犧牲“之程度，則 $\alpha_i$ 可視為 $\overrightarrow{\beta_j},\ j \in D$ 之函數，當其他乘客之“犧牲”度高時，則 $\alpha_i$ 亦多愈高 $\Longrightarrow$
+    \begin{enumerate}
+    \def\labelenumi{\arabic{enumi}.}
+      \item $\alpha_i$ 因 $\overrightarrow{B_j},\ i \in D$ 之維度升高而下降
+      \item $\alpha_i$ 因 $\beta_j,\ j \in D$，之個別值提高而升高（其他乘客較大之犧牲應由提高之費用($\alpha_i$)予以補償）
+    \end{enumerate}
+    承4. $\beta_j$ 可擴充為 $\beta_{ji}$，即為“$i$ 對 $j$ 造成之不便“(or $j$ 對 $i$ 所付出之犧牲)；$\alpha_i$ 為 $\overrightarrow{\beta_{ji}},\ j \in D$ 之函數且 $\alpha_i$ 因此造成提升之資費，應依 $\beta_{ji}$ 之大小而分配至相同 $j \in D$
+\end{enumerate}
+
+\begin{center}
+  \begin{tikzpicture}[
+    ->,>=stealth',
+    shorten >=1pt,
+    auto,
+    node distance=3cm,
+    thick,
+    main node/.style={minimum height=2pt,circle,draw,font=\sffamily\Large\bfseries}]
+    \node[main node] (0) {};
+    \node[main node] (1) [below left of=0]  {};
+    \node[main node] (2) [below right of=0] {};
+    \node[main node] (3) [below of=1]       {};
+    \node[main node] (4) [below of=2]       {};
+    \node (0top) at ($(0) + (40:.7)$)   {$S$(出發地)};
+    \node (1top) at ($(1) + (140:.5)$)  {$a$};
+    \node (2top) at ($(2) + (50:.5)$)   {$b$};
+    \node (3top) at ($(3) + (140:.5)$)  {$a'$};
+    \node (4top) at ($(4) + (50:.5)$)   {$b'$};
+
+    \draw[-] (0) to node [above left] {1} (1);
+    \draw[-] (0) to node [above right] {1} (2);
+    \draw[-] (1) to node [above] {1} (2);
+    \draw[-] (1) to node [left] {5} (3);
+    \draw[-] (2) to node [right] {5} (4);
+    \draw[-] (1) to node [above left] {5} (4);
+    \draw[-] (2) to node [above right] {5} (3);
+    \draw[-] (3) to node [below] {1} (4);
+  \end{tikzpicture}
+
+  For $A$ to travel from $a$ to $a'$ \\
+  \hspace{12pt} $B$ to travel from $b$ to $b'$
+\end{center}
+
+\begin{itemize}
+  \item 若只有 $A$ 則費用為 $\overline{aa'} = 5$
+  \item 若只有 $B$ 則費用為 $\overline{bb'} = 5$
+  \item 最佳 car pool 路線為 \\
+      Path 1: $S - b - a - b' - a'$，費用為 8，or \\
+      Path 2: $S - b - a - a' - b'$，費用為 8 \\
+      (若自接到第一個客戶起算則為 7) \\
+      但前者 $A$ 之“費用”為 6，$B$ 為 6 \\
+      而後者 $A$ 之“費用”為 5，$B$ 為 7 \\
+      $\Longrightarrow$ 可考慮在min全程費用之同時亦令各客戶之“犧牲度”愈平均愈好
+      \begin{itemize}
+        \item 以上述$\overset{Path 1}{\text{路程分析}}$，$B$ 分攤之費用為 $\overset{\overline{ba}}{1} + \frac{1}{2} \times \overset{\overline{ab'}}{5}$，$A$ 則為 $\frac{1}{2} \times \overset{\overline{ab'}}{5} + \overset{\overline{ba'}}{1}$ \\
+          $\Longrightarrow$ 各為 $3.5 < 5_{\hash}$
+        \item 若為 Path 2，則 $A$ 分攤 2.5，$B$ 4.5
+      \end{itemize}
+\end{itemize}
+
+\newpage
+\subsection*{Final formulation}
+\[
+  \underset{p \in P}{min}\ \underset{i \in D}{max} \text{客戶中增加量(or 比例)最大之} \overset{\text{Travel time}}{\text{“費用”}}
+\]
+\begin{itemize}
+  \item performance metric 亦傾向縮短總路經長
+  \item 此 program 解出之路徑可與“min總路徑長”之結果比較
+  \item 費用之分攤則依前頁例子中所述之法（可視每一 $U_i$ 至 $u_i$ 間有一單位流量需求，各 link $l$ 上各乘客之分攤費用為 $\frac{1}{g_l}$ (link $l$上之流量)
+  \item 基本model不可慮各客戶之 pick up 及 ETA 條件限制，但須考慮前述 $U_i$ 先於 $u_i$ 之限制
+  \item 未來可考慮 $max min$ 各客戶所減少支付（因共乘分攤）車資之比例
+  \item 未來亦可結合 admission control，各客戶提出“增額上限”及“節約下限”之條件
+\end{itemize}
+
+\subsection*{關鍵字}
+\begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \item 全程最短路徑（必訪中繼短之最短路徑問題為 NP-Complete）
+  \item 各別 QoS；乘客間可配性（分數）
+  \item 各別犧牲程度
+  \item 分組機制
+  \item 3與4之公平性
+  \item M to M
+  \item MP方法；先接後送之限制
+  \item 最佳 pick up 點之計算
+  \item 提前最大化
+  \item 送餐服務(MP, LR)
+  \item U-bike (MDP)
+  \item 隨時重算（以當下情形最為初始狀態）
+\end{enumerate}
+\end{document}

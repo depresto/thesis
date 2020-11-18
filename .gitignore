@@ -1,1 +1,5 @@
 *.pdf
+*.aux
+*.log
+*.gz
+*_temp.tex
