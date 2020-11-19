@@ -1,5 +1,5 @@
-*.pdf
 *.aux
 *.log
 *.gz
 *_temp.tex
+.DS_Store

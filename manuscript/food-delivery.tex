@@ -1,0 +1,90 @@
+\documentclass{article}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  total={170mm,257mm},
+  left=20mm,
+  top=20mm,
+}
+\usepackage{mathtools}
+\usepackage{stackengine}
+\usepackage{xeCJK}
+\setCJKmainfont{Songti TC Light}
+\usepackage{tikz}
+\usetikzlibrary{calc, arrows}
+\usepackage{graphicx}
+\newcommand\hash{\mathbin{\mathpalette\xhash\relax}}
+\newcommand{\xhash}[2]{\ooalign{%
+  $#1\xxhash{#1}{-45}$\cr
+  $#1\xxhash{#1}{45}$\cr
+  }%
+}
+\newcommand{\xxhash}[2]{\rotatebox[origin=c]{#2}{$#1\parallel$}}
+
+\begin{document}
+
+\section*{外送服務}
+
+\begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \item 本研究考慮共享經濟中之餐點外送服務 e.g. Foodpanda, Uber Eat, Deliverloo, Foodomo, ..., 中送餐人員之派遣問題
+  \item 各客戶所見之預定可送餐時間為給定，且可能參考餐廳可出餐時間及餐廳至客戶端之預計運送時間
+  \item 系統之目標可為在送餐時間要求與可運用之運送資料及路況條件限制下，最大化系統收益，亦可假設運送資源相對豐沛之情況下，優化送貨員派工及收益之公平性
+  \item 系統之決策為送餐工作之分派與運送路徑之計算
+  \item 本研究亦或可適用於”共乘服務“ e.g. 一趟車可陸續（同時搭載）多組客人，將需擬定合理之收費及分攤辦法（此為另一共享經濟問題，至此含U-bike/i-Rent問題已有三主題，據此是否可考慮提院中新進人員三年期計畫？）
+  \item 另可考慮每一餐點體積，運送箱總體機及初始負載（可適用於共乘）
+\end{enumerate}
+
+\begin{align*}
+  \text{給定參數：}\\
+  R: & \text{飯店所形成之集合（以$i$為$index$）} \\
+  D: & \text{送貨員形成之集合（以$k$為$index$）} \\
+  C: & \text{客戶所形成之集合（以$j$為$index$）} \\
+  t_{ij}: & \text{由飯店 $i$ 至客戶 $j$ 所需之運送時間} \\
+  f_{ij}: & \text{由送貨員 $k$ 目前位置至飯店 $i$ 所需之運送時間} \\
+  g_{ij}: & \text{由送貨員 $k$ 目前位置至客戶 $j$ 所需之運送時間} \\
+  n_{ij}: & \text{由客戶 $j$ 至下一飯店 $i$ 取貨所需之時間} \\
+  a_k: & \text{送貨員 $k$ 目前所累積之運送量（次數）} \\
+  b_k: & \text{送貨員 $k$ 目前所累積之報酬} \\
+  w_{kij}: & \text{送貨員 $k$ 自飯店 $i$ 送貨至客戶 $j$ 所獲之報酬} \\
+  \alpha_{ij}: & \text{飯店 $i$ 備妥客戶 $j$ 餐點的時間點（含預約餐點）} \\
+  d_{ij}: & \text{飯店 $i$ 為客戶 $j$ 所準備餐點之預計抵達時間} \\
+  P_{jj'}: & \text{客戶 $j$ 至客戶 $j'$ 間所需之時間（先多取再沿途派送）} \\
+  A_k: & \text{送貨員 $k$ 所可採用之路徑所形成之集合（每一路徑始於 $k$ 之所在點，終於一 $k$ 之虛擬終點）} \\
+  r_{ij}: & \text{餐點 $(i, j)$ 若能成功遞送，系統所獲之收益}
+\end{align*}
+
+\begin{align*}
+  \text{決策變數：}\\
+  x_p: & 1 \text{ if path $p$ in selected for customer rider } k \in D,\ where\ p \in P_k,\ k \in D \\
+  \Delta a_k: & \text{送貨員 $k$ 預期之增加送餐次數} \\
+  \Delta b_k: & \text{送貨員 $k$ 預期之增加送餐報酬} \\
+  z_{k_kij}: & \text{1 if order $(i, j)$ is assigned to $k \in D$, and 0 otherwise} \\
+  e_{kij}: & \text{送貨員 $k$ 預計將餐點 $(i,j)$ 送達之時間 } \\
+  h_{kij}: & \text{送貨員 $k$ 預計至 $i$ 取得餐點 $(i,j)$ 之時間 } \\
+\end{align*}
+
+* 本研究假設任一 order 可用 $(i,j)\ pair,\ where\ i \in R,\ j \in C$, 但若有需要可擴充至 $(i,j,l),\ where\ l$ 為一唯一序號
+
+\begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \item $h$ 必須先至 $i$ 取餐方能送至客戶 $j$
+  \item
+  \item 依所定之派送決策 $S = \{(i,j),\ i \in R,\ j \in C\}$，找出一條由 $I_k$ 點出發至 $O_k$ 點終止之路徑，該路徑會途經所有 $R_k$ 及 $C_k$ 中所含之節點，同時滿足
+    \begin{enumerate}
+      \item 先取後送
+      \item 運送箱空間限制及
+      \item 所有$(i,j)$ 之送達時間需求
+    \end{enumerate}
+    未來可考慮選擇 $k$ 最後遞送之 $(i,j)$，亦即其完成所有工作時最後一位客戶之所在地
+\end{enumerate}
+
+\subsection*{未來擴充}
+\begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \item 系統可降低特定訂單之抽成率誘因，令餐廳將該單取餐時間提前
+  \item 若某客戶同時間向某餐廳下多筆訂單，則系統在滿足某些如時間及總量之條件限制下可執行“併單”程序，並提供送貨員合理之遞送費用（通常為個別費用相加後施予折扣）
+  \item 可提供客戶急單服務，以增加服務費提前預定送抵時間，增加之服務費可分潤予餐廳並於排成策略中優先處理此累急單（deadline必須嚴格滿足）
+  \item 可採用QoE之概念，每一單均有一“滿意度”指標，通常愈早送抵其值愈大，且若遲到則其值為負（並為concave fn.）
+\end{enumerate}
+\end{document}
