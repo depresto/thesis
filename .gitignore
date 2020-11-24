@@ -2,4 +2,5 @@
 *.log
 *.gz
 *_temp.tex
+*.toc
 .DS_Store

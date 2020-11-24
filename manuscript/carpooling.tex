@@ -73,7 +73,7 @@ E.g. 機車接送學生 or 某員工開個pick up同仁一同上班，若為後�
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
-  \item 有趣之問題為合乎所有\(U_i\)，均須前於\(u_i\)條件之permutations共有多少種？
+  \item 一有趣之問題為合乎所有\(U_i\)，均須前於\(u_i\)條件之permutations共有多少種？
   \item math formulation: (\(u_i\)亦經node splitting並增加artificial links\(\in L''\))
   
     \{令\(U_i\)之集合為\(V\), \(u_i\)之集合為\(U\),\(i \in \{1,2,...,n\}\)\}
@@ -82,8 +82,8 @@ E.g. 機車接送學生 or 某員工開個pick up同仁一同上班，若為後�
       min & \sum\limits_{p \in P_z} \sum\limits_{l \in L \cup L' \cup L''} x_p s_{pl} a_l \\
       s.t. & \sum\limits_{p \in P_z} x_p = 1 && for\ U_i \ \& \ u_i, i \in \{1,2,...,n\} \tag{1} \\
       & x_p = 0 \ or \ 1 && \forall p \in P_z \tag{2} \\
-      & \text{(link \(l\) 若在最短路徑上，則 \(y_l = 1\)，否則為 0)} \\
       & \sum\limits_{p \in P_z} x_p s_{pl} = y_l && \forall l \in L \cup L' \cup L'' \tag{3} \\
+      & \text{(link \(l\) 若在最短路徑上，則 \(y_l = 1\)，否則為 0)} \\
       & y_l = 1 && \forall l \in L' \cup L"" \tag{4} \\
       & \sum\limits_{p \in P_w} z_p s_{pl} \leq y_l && \forall w \in V \cup U = W \tag{5} \\
       & \text{(保證計算到 \(U_i\) 及 \(u_i\) 所用之路徑 \("z_p"\) 重疊於A至Z之路徑)} \\
