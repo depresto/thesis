@@ -4,3 +4,8 @@
 *_temp.tex
 *.toc
 .DS_Store
+*.xwm
+*.out
+*.lot
+*.lof
+*.blg
