@@ -50,48 +50,48 @@ E.g. 機車接送學生 or 某員工開個pick up同仁一同上班，若為後�
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
   \item 由A出發，目的地為Z
-  \item 途中需經\(U_1, U_2, …, U_n\) (無需依序)之給定點 \((U_i, U_i') \in L’\)
-  \item Modeled as \(G(N, L)\), 將\(U_1 ~ U_n\)利用node splitting技術產出artificial link集合\(L’\)
+  \item 途中需經\(v_1, v_2, …, v_n\) (無需依序)之給定點 \((v_i, v_i') \in L’\)
+  \item Modeled as \(G(N, L)\), 將\(v_1 ~ v_n\)利用node splitting技術產出artificial link集合\(L’\)
   \item 可將n必經點排序，再找出依序之最短路徑，但複雜度為\(n!\)，過高
   \item
     \begin{align*}\tag{LP}
-      min & \sum\limits_{p \in P_z} \sum\limits_{l \in L \cup L'} x_p s_{pl} a_l && \text{where } l = \text{const of link, } a_l = 0,\ \forall l \in L' \\
+      min & \sum\limits_{p \in P_z} \sum\limits_{l \in L \cup L'} x_p \delta_{pl} a_l && \text{cost of link l, } a_l = 0,\ \forall l \in L' \\
       & (P_z \text{: 所有由A至Z路徑所成之集合}) \\
       s.t. & \sum\limits_{p \in P_z} x_p = 1 \tag{1} \\
       & x_p = 0 \ or \ 1 && \forall p \in P_z \tag{2} \\
-      \text{(To be relaxed)} & \sum\limits_{p \in P_z} x_p s_{pl} = 1 && \forall l \in L' \tag{3}
+      \text{(To be relaxed)} & \sum\limits_{p \in P_z} x_p \delta_{pl} = 1 && \forall l \in L' \tag{3}
     \end{align*}
 \end{enumerate}
 
 \begin{itemize}
-  \item 第(3)式保證最短路徑會經過 \(U_1,U_2,...U_n\)
+  \item 第(3)式保證最短路徑會經過 \(v_1,v_2,...v_n\)
   \item 經relaxed後，對應之arc weight (LR multipliers) 可為± or 0,若為負則LR中做短路徑問題即不可用Dijkstra，而須改用 e.g.~Bellman-Ford with max hop constraint (避免負迴圈)
 \end{itemize}
 
 \newpage
-將前述經特定多點之最短路徑問題修改為每一\(U_i\)有一需經過之對應\(u_i\)，同時所標路徑必須滿足先經\(U_i\)後經\(u_i\)
+將前述經特定多點之最短路徑問題修改為每一\(v_i\)有一需經過之對應\(u_i\)，同時所標路徑必須滿足先經\(v_i\)後經\(u_i\)
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
-  \item 一有趣之問題為合乎所有\(U_i\)，均須前於\(u_i\)條件之permutations共有多少種？
+  \item 一有趣之問題為合乎所有\(v_i\)，均須前於\(u_i\)條件之permutations共有多少種？
   \item math formulation: (\(u_i\)亦經node splitting並增加artificial links\(\in L''\))
   
-    \{令\(U_i\)之集合為\(V\), \(u_i\)之集合為\(U\),\(i \in \{1,2,...,n\}\)\}
+    \{令\(v_i\)之集合為\(V\), \(u_i\)之集合為\(U\),\(i \in \{1,2,...,n\}\)\}
 
     \begin{align*}
-      min & \sum\limits_{p \in P_z} \sum\limits_{l \in L \cup L' \cup L''} x_p s_{pl} a_l \\
-      s.t. & \sum\limits_{p \in P_z} x_p = 1 && for\ U_i \ \& \ u_i, i \in \{1,2,...,n\} \tag{1} \\
+      min & \sum\limits_{p \in P_z} \sum\limits_{l \in L \cup L' \cup L''} x_p \delta_{pl} a_l \\
+      s.t. & \sum\limits_{p \in P_z} x_p = 1 && for\ v_i \ \& \ u_i, i \in \{1,2,...,n\} \tag{1} \\
       & x_p = 0 \ or \ 1 && \forall p \in P_z \tag{2} \\
-      & \sum\limits_{p \in P_z} x_p s_{pl} = y_l && \forall l \in L \cup L' \cup L'' \tag{3} \\
+      & \sum\limits_{p \in P_z} x_p \delta_{pl} = y_l && \forall l \in L \cup L' \cup L'' \tag{3} \\
       & \text{(link \(l\) 若在最短路徑上，則 \(y_l = 1\)，否則為 0)} \\
       & y_l = 1 && \forall l \in L' \cup L"" \tag{4} \\
-      & \sum\limits_{p \in P_w} z_p s_{pl} \leq y_l && \forall w \in V \cup U = W \tag{5} \\
-      & \text{(保證計算到 \(U_i\) 及 \(u_i\) 所用之路徑 \("z_p"\) 重疊於A至Z之路徑)} \\
+      & \sum\limits_{p \in P_w} z_p \delta_{pl} \leq y_l && \forall w \in V \cup U = W \tag{5} \\
+      & \text{(保證計算到 \(v_i\) 及 \(u_i\) 所用之路徑 \("z_p"\) 重疊於A至Z之路徑)} \\
       & \sum\limits_{p \in P_w} z_p = 1 && \forall w \in W \tag{6} \\
       & z_p = 0 \ or \ 1 \tag{7} \\
-      & \sum\limits_{l \in L \cup L'} \sum\limits_{p \in Q_{U_i}} z_p s_{pl} a_l \leq \sum\limits_{l \in L \cup L'} \sum\limits_{p \in Q_{u_i}} z_p s_{pl} a_l && \forall i \in \{1,2,,...,n\} \tag{8} \\
-      & \text{(保證\(U_i\)先\(u_i\)後)} \\
-      & \text{(\(Q_{u_i}\)為A至\(U_i\)所有路徑之集合\(Q_{u_i},...,u_i,..., i \in \{1,2,3,...,n\} = R\))} \\
+      & \sum\limits_{l \in L \cup L'} \sum\limits_{p \in Q_{v_i}} z_p \delta_{pl} a_l \leq \sum\limits_{l \in L \cup L'} \sum\limits_{p \in Q_{u_i}} z_p \delta_{pl} a_l && \forall i \in \{1,2,,...,n\} \tag{8} \\
+      & \text{(保證\(v_i\)先\(u_i\)後)} \\
+      & \text{(\(Q_{u_i}\)為A至\(v_i\)所有路徑之集合\(Q_{u_i},...,u_i,..., i \in \{1,2,3,...,n\} = R\))} \\
     \end{align*}
 \end{enumerate}
 
@@ -101,13 +101,13 @@ E.g. 機車接送學生 or 某員工開個pick up同仁一同上班，若為後�
 \def\labelenumi{\arabic{enumi}.}
   \item 定義客戶集 $\{1,2,...,n\} = R$
   \item 定義各客戶之“獨享”收費為$r_i,\ i \in R$
-  \item 重新定義前頁中之$y_l,\ l \in L' \cup L''$為若$i \in R$被允入，則對應之2個$y_l$ (個別對應於$U_i$及$u_i$分裂後之 artificial links)之值設為1，否則為0
-  \item 令 $e(U_i)$ 為 the link corresponding to that in L' \\
+  \item 重新定義前頁中之$y_l,\ l \in L' \cup L''$為若$i \in R$被允入，則對應之2個$y_l$ (個別對應於$v_i$及$u_i$分裂後之 artificial links)之值設為1，否則為0
+  \item 令 $e(v_i)$ 為 the link corresponding to that in L' \\
         令 $f(u_i)$ 為 the link corresponding to that in L''
-  \item 目標函數改為 $max \sum\limits_{i \in R} y_{e(U_i)} r_i$
-  \item Constraint (3) 改為 $\sum_{p \in P_z} x_p s_{pl} \leq y_l \hspace{10pt} \forall l \in L' \cup L''$ \\
+  \item 目標函數改為 $max \sum\limits_{i \in R} y_{e(v_i)} r_i$
+  \item Constraint (3) 改為 $\sum_{p \in P_z} x_p \delta_{pl} \leq y_l \hspace{10pt} \forall l \in L' \cup L''$ \\
         (若 i 被允入則獲 $r_i$ 收益，且A至Z之路徑必須經過 i 於 L' 及 L'' 對應之 links)
-  \item Constraint (4) 改為 $y_{e(U_i)} = y_{f(u_i)} \hspace{23pt} \forall i \in R$ \\
+  \item Constraint (4) 改為 $y_{e(v_i)} = y_{f(u_i)} \hspace{23pt} \forall i \in R$ \\
         (i 於 L' 及 L'' 中對應 links 所對應之兩 $y_l$ 必須等值)
 \end{enumerate}
 
@@ -187,8 +187,8 @@ E.g. 機車接送學生 or 某員工開個pick up同仁一同上班，若為後�
 \begin{itemize}
   \item performance metric 亦傾向縮短總路經長
   \item 此 program 解出之路徑可與“min總路徑長”之結果比較
-  \item 費用之分攤則依前頁例子中所述之法（可視每一 $U_i$ 至 $u_i$ 間有一單位流量需求，各 link $l$ 上各乘客之分攤費用為 $\frac{1}{g_l}$ (link $l$上之流量)
-  \item 基本model不可慮各客戶之 pick up 及 ETA 條件限制，但須考慮前述 $U_i$ 先於 $u_i$ 之限制
+  \item 費用之分攤則依前頁例子中所述之法（可視每一 $v_i$ 至 $u_i$ 間有一單位流量需求，各 link $l$ 上各乘客之分攤費用為 $\frac{1}{g_l}$ (link $l$上之流量)
+  \item 基本model不可慮各客戶之 pick up 及 ETA 條件限制，但須考慮前述 $v_i$ 先於 $u_i$ 之限制
   \item 未來可考慮 $max min$ 各客戶所減少支付（因共乘分攤）車資之比例
   \item 未來亦可結合 admission control，各客戶提出“增額上限”及“節約下限”之條件
 \end{itemize}

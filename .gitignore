@@ -9,3 +9,5 @@
 *.lot
 *.lof
 *.blg
+*.bbl
+latexmkrc
