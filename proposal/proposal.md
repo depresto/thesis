@@ -30,7 +30,22 @@ An Optimization Based Carpool Algorithm in Consideration of the Total Cost and F
 
 The object of this research is to minimize the maximum percentage of cost saving when a passenger chooses to carpool, with consideration of the number of drivers, car capacity and routing limit constraints.
 
-Take Figure 3-1 as an example scenario; Passenger 1 and Passenger 2 are requesting a trip. When Passenger 1 chooses to take a ride by himself/herself, called "exclusive" riding shown as Figure 3-2, it would cost $5. We can describe the scenario as a shortest path problem from $S$ to $D_1$, and $P_1$ is a must-pass node. We use Steiner tree to solve this kind of shortest path problem with must-pass nodes. Passenger 2's "exclusive" riding would also cost $5 in Figure 3-3. In this case, it would be a shortest path problem from $S$ to $D_2$ with $P_2$ as a must-pass node. When the passengers choose to take a carpool, which is called "sharing" riding, would have two best routings for the trip. We can describe the scenario as a shortest problem from $S$ to $D_1$ with $P_1$, $P_2$ and $D_2$ as must-pass nodes or $S$ to $D_2$. In Figure 3-4 is a case, which would cost $8 for all the passengers, in Figure 3-5 would cost the same and both of the cost they could share is $5 ( $\overline{P_2D_1}$ and $\overline{P_2D_2}$ respectively); however, in Figure 3-4 would cost $1 + \frac{1}{2} \times 5 = \$3.5$ for Passenger 1 and $\frac{1}{2} \times 5 + 1 = \$3.5$ for Passenger 2, in Figure 3-5 would cost $1 + \frac{1}{2} \times 5 + 1 = \$4.5$ for Passenger 1 and $\frac{1}{2} \times 5 = \$2.5$ for Passenger 2.
+Take Figure 3-1 as an example scenario; Passenger 1 and Passenger 2 are requesting a trip. When Passenger 1 chooses to take a ride by himself/herself, called "exclusive" riding shown as Figure 3-2, it would cost $5. We can describe the scenario as a shortest path problem from $S$ to $D_1$, and $P_1$ is a must-pass node. We use Steiner tree to solve this kind of shortest path problem with must-pass nodes. Passenger 2's "exclusive" riding would also cost $5 in Figure 3-3. In this case, it would be a shortest path problem from $S$ to $D_2$ with $P_2$ as a must-pass node. When the passengers choose to take a carpool, which is called "sharing" riding. We can describe the scenario as a shortest problem from $S$ to $D_1$ with $P_1$, $P_2$ and $D_2$ as must-pass nodes or $S$ to $D_2$ with $P_1$, $P_2$ and $D_1$ as must-pass nodes. In Figure 3-4 is one of the best case, which would cost $8 for all the passengers, in Figure 3-5 would cost the same $8 and both of the fares they could share are $5 ( $\overline{P_2D_1}$ and $\overline{P_2D_2}$ respectively); however, in Figure 3-4 would cost $\overset{\overline{P_1P_2}}{1} + \frac{1}{2} \times \overset{\overline{P_2D_1}}{5} = \$3.5$ for Passenger 1 and $\frac{1}{2} \times \overset{\overline{P_2D_1}}{5} + \overset{\overline{D_1D_2}}{1} = \$3.5$ for Passenger 2, in Figure 3-5 would cost $\overset{\overline{P_1P_2}}{1} + \frac{1}{2} \times \overset{\overline{P_2D_2}}{5} + \overset{\overline{D_2D_1}}{1} = \$4.5$ for Passenger 1 and $\frac{1}{2} \times \overset{\overline{P_2D_2}}{5} = \$2.5$ for Passenger 2.
+
+![](./figures/mapV2.jpg)
+Figure 3.1 Example road network with driving fare and points of passengers and their destinations.
+
+![](figures/mapV2_1.jpg)
+Figure 3.2 Best routing path when the driver only serving passenger 1.
+
+![](figures/mapV2_4.jpg)
+Figure 3.3 Best routing path when the driver only serving passenger 2.
+
+![](figures/mapV2_2.jpg)
+Figure 3.4 One of the best routing when both passenger 1 and passenger 2 carpool.
+
+![](figures/mapV2_3.jpg)
+Figure 3.5 Another best routing when both passenger 1 and passenger 2 carpool.
 
 ### Mathematical Model
 
