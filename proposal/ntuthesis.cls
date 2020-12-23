@@ -560,8 +560,9 @@
 \hypersetup{
   colorlinks,
   linkcolor=black,
-  anchorcolor=blue,
-  citecolor=green
+  anchorcolor=black,
+  citecolor=black,
+  urlcolor=black
 }
 
 % [目錄格式]
