@@ -3,6 +3,8 @@
 
 \chapter{Problem Formulation}
 
+In this chapter, we will introduce the scenario of the carpooling fairness problem. Then formulate the problem into a mathematical model with given parameters and decision variables.
+
 \section{Problem Description}
 
 The object of this research is to minimize the maximum percentage of cost saving when a passenger chooses to carpool, with consideration of the number of drivers, car capacity and routing limit constraints.
@@ -61,6 +63,13 @@ However, when the driving resource changes, such as a new driver joins our syste
 
 \section{Mathematical Model}
 
+Before we describe our mathematical model, we will go through the assumptions in the system. There are two assumption in out system:
+
+\begin{enumerate}
+  \item Every driving request only includes one passenger. This driving request will be split into multiple one-person driving request for a driving request with multiple people.
+  \item System calculation time is not considered, that is, assume that drivers' location will still keep unchanged after the time of system calculation.
+ \end{enumerate}
+
 \renewcommand\arraystretch{1.5}
 \par
 \begin{table}[ht]
@@ -98,7 +107,7 @@ However, when the driving resource changes, such as a new driver joins our syste
 \end{table}  
 \newpage
 
-\subsubsection*{Objective function}
+\subsubsection*{Objective Function}
 
 \begin{align*}
   max\ min\ \frac{Original\ cost_i - carpool\ cost_i}{Original\ cost_i}
