@@ -49,6 +49,16 @@ When the passengers choose to take a carpool, which is called "sharing" riding. 
 \end{figure}
 \newpage
 
+\subsection{Assumptions}
+
+There are three assumption in out system:
+
+\begin{enumerate}
+  \item Every driving request only includes one passenger. This driving request will be split into multiple one-person driving request for a driving request with multiple people.
+  \item System calculation time is not considered, that is, assume that drivers' location will still keep unchanged after the time of system calculation.
+  \item The carpooling fare is shared equally by the time passengers in the vehicle. For a certain section of the route that has $n$ passengers, this fare of link for a passenger will be divided by $n$.
+ \end{enumerate}
+
 \subsection{Fairness of Vehicle Dispatching}
 
 In order to consider the fairness when dispatching driver, we introduce Jain's fairness index to avoid unfair situation:
@@ -61,14 +71,11 @@ As a new driving request comes, we need to ensure our system must get more or at
 
 However, when the driving resource changes, such as a new driver joins our system, it will violate our constraint for fairness. Because the newcomer has not taken any driving request before, the fairness will decrease. Even if a driver leaves our system, the fairness will increase or decrease due to the driver's situation. As a result, we need to reset the fairness index to the initial state and reset all the drivers' accumulated driving requests to 0. Nevertheless, it will make the fairness index's denominator to 0, which can not be divided. To avoid this situation, we assign a virtual driver with one accumulated driving request, which will make the fairness index to $\frac{1}{(n+1)}$, where $n$ is the number of drivers in our system. Moreover, for any situation that the fairness index will decrease when dispatching a new driving request, the fairness will reset.
 
+\newpage
+
 \section{Mathematical Model}
 
-Before we describe our mathematical model, we will go through the assumptions in the system. There are two assumption in out system:
-
-\begin{enumerate}
-  \item Every driving request only includes one passenger. This driving request will be split into multiple one-person driving request for a driving request with multiple people.
-  \item System calculation time is not considered, that is, assume that drivers' location will still keep unchanged after the time of system calculation.
- \end{enumerate}
+We will go through the detailed given parameters and decision variables in the mathematical model before describing our mathematical model.
 
 \renewcommand\arraystretch{1.5}
 \par
@@ -79,14 +86,22 @@ Before we describe our mathematical model, we will go through the assumptions in
   \toprule
   Notation & Description \\
   \midrule
-    $R$ & Set of drivers in the system (take $i$ as index) \\
-    $P$ & Set of passengers in the system (take $j$ as index) \\
+    $B_r$ & Set of passengers that driver $r$ has picked up, where $r \in R$ \\
     $D$ & Set of destinations in the system (take $k$ as index) \\
     $L$ & Set of links on the road network \\
+    $L_p$ & Set of links on the road network that pass by the passenger $p \in P$ \\
+    $L_d$ & Set of links on the road network that pass by the destination $d \in D$ \\
+    $P$ & Set of passengers in the system (take $j$ as index) \\
     $P_r$ & Set of all paths for driver $r$, where $r \in R$ \\
-    $B_r$ & Set of passengers that driver $r$ has picked up, where $r \in R$ \\
-    $a_l$ & The fare for the link $l$, where $l \in L$ \\
+    $P_{rw}$ & Set of all paths for driver $r$ from initial location to a passenger or a destination, where $r \in R$ and $w \in W$ \\
+    $P_{rp_i}$ & Set of all paths for driver $r$ from initial location to passenger $p_i$, where $r \in R$ and $p_i \in P$ \\
+    $P_{rd_i}$ & Set of all paths for driver $r$ from initial location to destination $d_i$, where $r \in R$ and $d_i \in D$ \\
     $Q_r$ & Maximum load capacity for driver $r$, where $r \in R$ \\
+    $R$ & Set of drivers in the system (take $i$ as index) \\
+    $W$ & Set of passengers or destinations in the system, where $W = P \cup D$ \\
+    $f_l$ & The fare for the link $l$, where $l \in L$ \\
+    $g_r$ & The capacity that the driver $r \in R$ has loaded in the previous decision round. \\
+    $\alpha$ & The fairness index in the previous decision round. \\
     $\delta_{pl}$ & Indicator function which is 1 if link $l$ on the route $r$ is selected; 0 otherwise \\
   \bottomrule
   \end{tabularx}
@@ -100,8 +115,11 @@ Before we describe our mathematical model, we will go through the assumptions in
   \toprule
   Notation & Description \\
   \midrule
-  $x_p$ & Binary variable that indicates where route $p$ is chosen, $p \in P_z$. 1 if $p$ is chosen; 0 otherwise. \\
-  $y_l$ & Binary variable that indicates whether link $l$ is on the shortest path. 1 if $l$ is on the shortest path; 0 otherwise. \\
+    $x_p$ & Binary variable, 1 if route $p \in P_r$ is chosen; 0 otherwise. \\
+    $y_l$ & Binary variable, 1 if link $l \in L$ is on the shortest path; 0 otherwise. \\
+    $z_p$ & Binary variable, 1 if route $p \in P_{rw}$ is chosen; 0 otherwise. \\
+    $a_r$ & Total fare that the driver $r \in R$ has earned before current decision round. \\
+    $b_r$ & Total fare that the driver $r \in R$ has earned after current decision round. \\
   \bottomrule
   \end{tabularx}
 \end{table}  
@@ -109,18 +127,29 @@ Before we describe our mathematical model, we will go through the assumptions in
 
 \subsubsection*{Objective Function}
 
+The objective function is to maximize the minimum discount percentage when applying carpooling among passengers in one trip.
+
 \begin{align*}
-  max\ min\ \frac{Original\ cost_i - carpool\ cost_i}{Original\ cost_i}
+  max\ min\ \frac{Original\ cost_i - carpool\ cost_i}{Original\ cost_i} \tag{IP1}
 \end{align*}
 
 \subsubsection*{Constraints}
 
 \begin{align*}
-  s.t. & \sum\limits_{p \in P_z} x_p = 1 && for\ v_i \ \& \ u_i, i \in \{1,2,...,n\} \tag{1} \\
-  & \sum\limits_{p \in P_z} x_p \delta_{pl} = y_l && \forall l \in L \cup L' \cup L'' \tag{3} \\
-  & y_l = 1 && \forall l \in L' \cup L"" \tag{4} \\
-  & \sum\limits_{p \in P_w} z_p \delta_{pl} \leq y_l && \forall w \in V \cup U = W \tag{5} \\
-  & \sum\limits_{p \in P_w} z_p = 1 && \forall w \in W \tag{6} \\
-  & z_p = 0 \ or \ 1 \tag{7} \\
-  & \sum\limits_{l \in L \cup L'} \sum\limits_{p \in Q_{v_i}} z_p \delta_{pl} a_l \leq \sum\limits_{l \in L \cup L'} \sum\limits_{p \in Q_{u_i}} z_p \delta_{pl} a_l && \forall i \in \{1,2,,...,n\} \tag{8} \\
+  \intertext{Constraint 3.1 ensures there is only one path selected for a driver.}
+  & \sum\limits_{p \in P_r} x_p \leq 1 \tag{3.1} \\
+  \intertext{Constraint 3.2 ensures the selected link on the route we chose is on the shortest path.}
+  & \sum\limits_{p \in P_r} x_p \delta_{pl} \leq y_l && \forall l \in L \cup L_p \cup L_d \tag{3.2} \\
+  \intertext{Constraint 3.3 ensures all the links pass by the node of passenger or destination we chose is the shortest path.}
+  & y_l \leq 1 && \forall l \in L_p \cup L_d \tag{3.3} \\
+  \intertext{Constraint 3.4 ensures that all the routes to passengers or destinations we chose is on the shortest path and overlap the route we chose.}
+  & \sum\limits_{p \in P_w} z_p \delta_{pl} \leq y_l && \forall w \in W \tag{3.4} \\
+  \intertext{Constraint 3.5 ensures the route we chose will only pass by the node of passenger or destination once.}
+  & \sum\limits_{p \in P_w} z_p \leq 1 && \forall w \in W \tag{3.5} \\
+  \intertext{Constraint 3.6 ensures that we must pick up the passenger before we drop off the passenger.}
+  & \sum\limits_{l \in L \cup L_p} \sum\limits_{p \in P_{rp_i}} z_p \delta_{pl} f_l \leq \sum\limits_{l \in L \cup L_d} \sum\limits_{p \in P_{rd_i}} z_p \delta_{pl} f_l && \forall i \in \{1,2,,...,n\}, r \in D \tag{3.6} \\
+  \intertext{Constraint 3.7 ensures the fairness index after current decision round will not less than the previous decision round.}
+  & \frac{\left(\sum\limits_{r \in R} b_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} b_r^2} \geq \alpha \tag{3.7} \\
+  \intertext{Constraint 3.8 is the fairness index in the previous decision round.}
+  & \frac{\left(\sum\limits_{r \in R} a_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} a_r^2} \leq \alpha \tag{3.8} \\
 \end{align*}
