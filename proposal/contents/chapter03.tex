@@ -56,7 +56,7 @@ There are three assumption in out system:
 \begin{enumerate}
   \item Every driving request only includes one passenger. This driving request will be split into multiple one-person driving request for a driving request with multiple people.
   \item System calculation time is not considered, that is, assume that drivers' location will still keep unchanged after the time of system calculation.
-  \item The carpooling fare is shared equally by the time passengers in the vehicle. For a certain section of the route that has $n$ passengers, this fare of link for a passenger will be divided by $n$.
+  \item The carpooling fare is shared equally by the time passengers in the vehicle. For a specific link in the route with $n$ passengers, the fare of the link for a passenger will be divided by $n$.
  \end{enumerate}
 
 \subsection{Fairness of Vehicle Dispatching}
@@ -89,12 +89,12 @@ We will go through the detailed given parameters and decision variables in the m
     $B_r$ & Set of passengers that driver $r$ has picked up, where $r \in R$ \\
     $D$ & Set of destinations in the system (take $k$ as index) \\
     $L$ & Set of links on the road network \\
-    $L_p$ & Set of links on the road network that pass by the passenger $p \in P$ \\
+    $L_c$ & Set of links on the road network that pass by the passenger $c \in C$ \\
     $L_d$ & Set of links on the road network that pass by the destination $d \in D$ \\
-    $P$ & Set of passengers in the system (take $j$ as index) \\
+    $C$ & Set of passengers in the system (take $j$ as index) \\
     $P_r$ & Set of all paths for driver $r$, where $r \in R$ \\
     $P_{rw}$ & Set of all paths for driver $r$ from initial location to a passenger or a destination, where $r \in R$ and $w \in W$ \\
-    $P_{rp_i}$ & Set of all paths for driver $r$ from initial location to passenger $p_i$, where $r \in R$ and $p_i \in P$ \\
+    $P_{rc_i}$ & Set of all paths for driver $r$ from initial location to passenger $c_i$, where $r \in R$ and $c_i \in C$ \\
     $P_{rd_i}$ & Set of all paths for driver $r$ from initial location to destination $d_i$, where $r \in R$ and $d_i \in D$ \\
     $Q_r$ & Maximum load capacity for driver $r$, where $r \in R$ \\
     $R$ & Set of drivers in the system (take $i$ as index) \\
@@ -102,7 +102,8 @@ We will go through the detailed given parameters and decision variables in the m
     $f_l$ & The fare for the link $l$, where $l \in L$ \\
     $g_r$ & The capacity that the driver $r \in R$ has loaded in the previous decision round. \\
     $\alpha$ & The fairness index in the previous decision round. \\
-    $\delta_{pl}$ & Indicator function which is 1 if link $l$ on the route $r$ is selected; 0 otherwise \\
+    $\delta_{pl}$ & Indicator function which is 1 if link $l \in L$ on the route $p \in P_r$ is selected when driver $r \in R$ goes carpooling; 0 otherwise \\
+    $\zeta_{pl}$ & Indicator function which is 1 if link $l \in L$ on the route $p \in P_{rd_i}, i \in \{1,2,3,...,n\}$ is selected when passenger $c_i \in C$ with index $i$; 0 otherwise \\
   \bottomrule
   \end{tabularx}
 \end{table}  
@@ -115,8 +116,10 @@ We will go through the detailed given parameters and decision variables in the m
   \toprule
   Notation & Description \\
   \midrule
-    $x_p$ & Binary variable, 1 if route $p \in P_r$ is chosen; 0 otherwise. \\
-    $y_l$ & Binary variable, 1 if link $l \in L$ is on the shortest path; 0 otherwise. \\
+    $u_l$ & Binary variable, 1 if link $l \in L$ is on the shortest path; 0 otherwise. \\
+    $v_{wp}$ & Binary variable, 1 if route $p \in P_r$ is chosen; 0 otherwise. \\
+    $x_p$ & Binary variable, 1 if route $p \in P_r$ is chosen when driver $r \in R$ goes carpooling; 0 otherwise. \\
+    $y_p$ & Binary variable, 1 if route $p \in P_{rd_i}, i \in \{1,2,3,...n\}$ is chosen when passenger $c_i \in C$ with index $i$ does not take a carpooling; 0 otherwise. \\
     $z_p$ & Binary variable, 1 if route $p \in P_{rw}$ is chosen; 0 otherwise. \\
     $a_r$ & Total fare that the driver $r \in R$ has earned before current decision round. \\
     $b_r$ & Total fare that the driver $r \in R$ has earned after current decision round. \\
@@ -130,7 +133,8 @@ We will go through the detailed given parameters and decision variables in the m
 The objective function is to maximize the minimum discount percentage when applying carpooling among passengers in one trip.
 
 \begin{align*}
-  max\ min\ \frac{Original\ cost_i - carpool\ cost_i}{Original\ cost_i} \tag{IP1}
+  max\ min\ \frac{Z_i - carpool\ cost_i}{Z_i} \tag{IP1} \\
+  where\ Z_i = \sum_{p \in P_{rd_i}} \sum_{l \in L} y_p \zeta_{pl} a_l \\
 \end{align*}
 
 \subsubsection*{Constraints}
@@ -139,15 +143,15 @@ The objective function is to maximize the minimum discount percentage when apply
   \intertext{Constraint 3.1 ensures there is only one path selected for a driver.}
   & \sum\limits_{p \in P_r} x_p \leq 1 \tag{3.1} \\
   \intertext{Constraint 3.2 ensures the selected link on the route we chose is on the shortest path.}
-  & \sum\limits_{p \in P_r} x_p \delta_{pl} \leq y_l && \forall l \in L \cup L_p \cup L_d \tag{3.2} \\
+  & \sum\limits_{p \in P_r} x_p \delta_{pl} \leq u_l && \forall l \in L \tag{3.2} \\
   \intertext{Constraint 3.3 ensures all the links pass by the node of passenger or destination we chose is the shortest path.}
-  & y_l \leq 1 && \forall l \in L_p \cup L_d \tag{3.3} \\
+  & u_l \leq 1 && \forall l \in L_c \cup L_d \tag{3.3} \\
   \intertext{Constraint 3.4 ensures that all the routes to passengers or destinations we chose is on the shortest path and overlap the route we chose.}
-  & \sum\limits_{p \in P_w} z_p \delta_{pl} \leq y_l && \forall w \in W \tag{3.4} \\
+  & \sum\limits_{p \in P_w} z_p \delta_{pl} \leq u_l && \forall w \in W \tag{3.4} \\
   \intertext{Constraint 3.5 ensures the route we chose will only pass by the node of passenger or destination once.}
   & \sum\limits_{p \in P_w} z_p \leq 1 && \forall w \in W \tag{3.5} \\
   \intertext{Constraint 3.6 ensures that we must pick up the passenger before we drop off the passenger.}
-  & \sum\limits_{l \in L \cup L_p} \sum\limits_{p \in P_{rp_i}} z_p \delta_{pl} f_l \leq \sum\limits_{l \in L \cup L_d} \sum\limits_{p \in P_{rd_i}} z_p \delta_{pl} f_l && \forall i \in \{1,2,,...,n\}, r \in D \tag{3.6} \\
+  & \sum\limits_{l \in L} \sum\limits_{p \in P_{rc_i}} z_p \delta_{pl} f_l \leq \sum\limits_{l \in L} \sum\limits_{p \in P_{rd_i}} z_p \delta_{pl} f_l && \forall i \in \{1,2,,...,n\}, r \in D \tag{3.6} \\
   \intertext{Constraint 3.7 ensures the fairness index after current decision round will not less than the previous decision round.}
   & \frac{\left(\sum\limits_{r \in R} b_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} b_r^2} \geq \alpha \tag{3.7} \\
   \intertext{Constraint 3.8 is the fairness index in the previous decision round.}
