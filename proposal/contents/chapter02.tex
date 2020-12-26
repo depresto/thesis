@@ -2,10 +2,23 @@
 
 \chapter{Literature Review}
 
-\section{Related research on carpooling}
+\section{Related Work on Carpooling}
 
 \section{Dial-a-ride-problem}
 
-\section{Steiner tree}
+Dial-a-rider-problem
 
-In order
+\subsection{Steiner Tree}
+
+\section{Fairness}
+
+Fairness is the central issue in our research. According to the Cambridge dictionary definition, fairness is "the quality of treating people equally or in a way that is right or reasonable"\cite{noauthor_fairness_nodate}. There are many factors to be considered when it comes to carpooling. One of them is the mechanism of dispatching ride requests to drivers. Suppose a driver in the carpooling system is not treated equally, such as not receiving any ride request in the rush hour while others receive a lot. In that case, the driver might choose not to use the carpooling system. 
+
+However, getting rid of unequal ride requests dispatching is not easy. There are many possibilities for drivers to think they are treated equally or unequally. For instance, one may think it is equal to receive the same ride requests as others. In contrast, another may think to be treated unequally for participating in carpooling for a long time. To get rid of the issue in such a resource allocation scenario, we define fairness in a mathematical approach to measure fairness. There are many indices to measure the fairness of resource allocation\cite{jain_99-0045_nodate}. In this paper, we use Raj Jain's approach, Jain's fairness index\cite{jain_quantitative_1998}, to know the status of ride request allocation by calculation.
+
+\subsection{Jain's Fairness Index}
+
+Jain's fairness index is a metric to measure the fairness of the resource allocation in a system, which is used in the networking engineering field. By definition, there are $n$ users share resource in a system, a user $i \in \{1,2,3,...,n\}$ allocates $x_i$ resource\cite{jain_quantitative_1998}, and the following is the formula:
+
+$Firness\ Index = f_A(x) = \frac{\left(\sum\limits_{i=1}^{n} x_i\right)^2}{n \sum\limits_{i=1}^{n} x_i^2}$
+

@@ -86,23 +86,24 @@ We will go through the detailed given parameters and decision variables in the m
   \toprule
   Notation & Description \\
   \midrule
-    $B_r$ & Set of passengers that driver $r$ has picked up, where $r \in R$ \\
+    $R$ & Set of ride request \\
+    $C$ & Set of passengers in the system (take $j$ as index) \\
     $D$ & Set of destinations in the system (take $k$ as index) \\
+    $R$ & Set of drivers in the system (take $i$ as index) \\
+    $W$ & Set of passengers or destinations in the system, where $W = P \cup D$ \\
+    $B_r$ & Set of passengers that driver $r$ has picked up, where $r \in R$ \\
     $L$ & Set of links on the road network \\
     $L_c$ & Set of links on the road network that pass by the passenger $c \in C$ \\
     $L_d$ & Set of links on the road network that pass by the destination $d \in D$ \\
-    $C$ & Set of passengers in the system (take $j$ as index) \\
     $P_r$ & Set of all paths for driver $r$, where $r \in R$ \\
     $P_{rw}$ & Set of all paths for driver $r$ from initial location to a passenger or a destination, where $r \in R$ and $w \in W$ \\
     $P_{rc_i}$ & Set of all paths for driver $r$ from initial location to passenger $c_i$, where $r \in R$ and $c_i \in C$ \\
     $P_{rd_i}$ & Set of all paths for driver $r$ from initial location to destination $d_i$, where $r \in R$ and $d_i \in D$ \\
     $Q_r$ & Maximum load capacity for driver $r$, where $r \in R$ \\
-    $R$ & Set of drivers in the system (take $i$ as index) \\
-    $W$ & Set of passengers or destinations in the system, where $W = P \cup D$ \\
     $f_l$ & The fare for the link $l$, where $l \in L$ \\
     $g_r$ & The capacity that the driver $r \in R$ has loaded in the previous decision round. \\
     $\alpha$ & The fairness index in the previous decision round. \\
-    $\delta_{pl}$ & Indicator function which is 1 if link $l \in L$ on the route $p \in P_r$ is selected when driver $r \in R$ goes carpooling; 0 otherwise \\
+    $\delta_{pl}$ & Indicator function which is 1 if link $l \in L$ on the route $p \in P_r$ when driver $r \in R$ goes carpooling; 0 otherwise \\
     $\zeta_{pl}$ & Indicator function which is 1 if link $l \in L$ on the route $p \in P_{rd_i}, i \in \{1,2,3,...,n\}$ is selected when passenger $c_i \in C$ with index $i$; 0 otherwise \\
   \bottomrule
   \end{tabularx}
@@ -133,7 +134,7 @@ We will go through the detailed given parameters and decision variables in the m
 The objective function is to maximize the minimum discount percentage when applying carpooling among passengers in one trip.
 
 \begin{align*}
-  max\ min\ \frac{Z_i - carpool\ cost_i}{Z_i} \tag{IP1} \\
+  \max_{r} \min \frac{Z_i - carpool\ cost_i}{Z_i} \tag{IP1} \\
   where\ Z_i = \sum_{p \in P_{rd_i}} \sum_{l \in L} y_p \zeta_{pl} a_l \\
 \end{align*}
 
