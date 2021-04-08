@@ -94,15 +94,12 @@ We will go through the detailed given parameters and decision variables in the m
     $L$ & Set of links on the road network \\
     $L_c$ & Set of links on the road network that pass by the passenger $c \in C$ \\
     $L_d$ & Set of links on the road network that pass by the destination $d \in D$ \\
-    $P_{pw}$ & Set of all paths for driver $r$ from initial location to a passenger or a destination, where $r \in R$ and $w \in W$ \\
-    $P_{rc_i}$ & Set of all paths for driver $r$ from initial location to passenger $c_i$, where $r \in R$ and $c_i \in C$ \\
-    $P_{rd_i}$ & Set of all paths for driver $r$ from initial location to destination $d_i$, where $r \in R$ and $d_i \in D$ \\
-    $Q_r$ & Maximum load capacity for driver $r$, where $r \in R$ \\
+    $q_r$ & Maximum load capacity for driver $r$, where $r \in R$ \\
     $f_l$ & The fare for the link $l$, where $l \in L$ \\
     $g_r$ & The capacity that the driver $r \in R$ has loaded in the previous decision round. \\
     $\alpha$ & The fairness index in the previous decision round. \\
     $\delta_{pl}$ & Indicator function which is 1 if link $l \in L$ on the route $p \in P_r$ when driver $r \in R$ goes carpooling; 0 otherwise \\
-    $\zeta_{pl}$ & Indicator function which is 1 if link $l \in L$ on the route $p \in P_{rd_i}, i \in \{1,2,3,...,n\}$ is selected when passenger $c_i \in C$ with index $i$; 0 otherwise \\
+    $\gamma_{pl}$ & Indicator function which is 1 if link $l \in L$ on the route $p \in P_{rd_i}, i \in \{1,2,3,...,n\}$ is selected when passenger $c_i \in C$ with index $i$; 0 otherwise \\
   \bottomrule
   \end{tabularx}
 \end{table}  
@@ -116,6 +113,9 @@ We will go through the detailed given parameters and decision variables in the m
   Notation & Description \\
   \midrule
     $P_r$ & Set of all paths for driver $r$, where $r \in R$ \\
+    $P_{pw}$ & Set of all paths for driver $r$ from initial location to a passenger or a destination, where $r \in R$ and $w \in W$ \\
+    $P_{rj}$ & Set of all paths for driver $r$ from initial location to passenger $j$, where $r \in R$ and $j \in C$ \\
+    $P_{rk}$ & Set of all paths for driver $r$ from initial location to destination $k$, where $r \in R$ and $k \in D$ \\
     $E_r$ & Set of customers for driver $r$, where $r \in R$ to pick up when the driver goes carpooling \\
     $z_p$ & Binary variable, 1 if route $p \in P_{rw}$ is chosen; 0 otherwise. \\
     $u_l$ & Binary variable, 1 if link $l \in L$ is on the shortest path; 0 otherwise. \\
@@ -134,8 +134,8 @@ We will go through the detailed given parameters and decision variables in the m
 The objective function is to maximize the minimum discount percentage when applying carpooling among passengers in one trip.
 
 \begin{align*}
-  \max_{r} \min_{i \in E_r} \frac{Z_i - carpool\ cost_i}{Z_i} \tag{IP1} \\
-  where\ Z_i = \sum_{p \in P_{rd_i}} \sum_{l \in L} y_p \zeta_{pl} a_l \\
+  \max_{r \in R} \min_{i \in E_r} \frac{Z_i - carpool\ cost_i}{Z_i} \tag{IP1} \\
+  where\ Z_i = \sum_{p \in P_{rd_i}} \sum_{l \in L} y_p \gamma_{pl} a_l \\
 \end{align*}
 
 \subsubsection*{Constraints}
@@ -152,7 +152,7 @@ The objective function is to maximize the minimum discount percentage when apply
   \intertext{Constraint 3.5 ensures the route we chose will only pass by the node of passenger or destination once.}
   & \sum\limits_{p \in P_w} z_p \leq 1 && \forall w \in W \tag{3.5} \\
   \intertext{Constraint 3.6 ensures that we must pick up the passenger before we drop off the passenger.}
-  & \sum\limits_{l \in L} \sum\limits_{p \in P_{rc_i}} z_p \delta_{pl} f_l \leq \sum\limits_{l \in L} \sum\limits_{p \in P_{rd_i}} z_p \delta_{pl} f_l && \forall i \in \{1,2,,...,n\}, r \in D \tag{3.6} \\
+  & \sum\limits_{l \in L} \sum\limits_{p \in P_{rj}} z_p \delta_{pl} f_l \leq \sum\limits_{l \in L} \sum\limits_{p \in P_{rk}} z_p \delta_{pl} f_l && \forall i \in \{1,2,,...,n\}, r \in D \tag{3.6} \\
   \intertext{Constraint 3.7 ensures the fairness index after current decision round will not less than the previous decision round.}
   & \frac{\left(\sum\limits_{r \in R} b_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} b_r^2} \geq \alpha \tag{3.7} \\
   \intertext{Constraint 3.8 is the fairness index in the previous decision round.}
