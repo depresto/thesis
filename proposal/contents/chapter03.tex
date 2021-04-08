@@ -94,8 +94,7 @@ We will go through the detailed given parameters and decision variables in the m
     $L$ & Set of links on the road network \\
     $L_c$ & Set of links on the road network that pass by the passenger $c \in C$ \\
     $L_d$ & Set of links on the road network that pass by the destination $d \in D$ \\
-    $P_r$ & Set of all paths for driver $r$, where $r \in R$ \\
-    $P_{rw}$ & Set of all paths for driver $r$ from initial location to a passenger or a destination, where $r \in R$ and $w \in W$ \\
+    $P_{pw}$ & Set of all paths for driver $r$ from initial location to a passenger or a destination, where $r \in R$ and $w \in W$ \\
     $P_{rc_i}$ & Set of all paths for driver $r$ from initial location to passenger $c_i$, where $r \in R$ and $c_i \in C$ \\
     $P_{rd_i}$ & Set of all paths for driver $r$ from initial location to destination $d_i$, where $r \in R$ and $d_i \in D$ \\
     $Q_r$ & Maximum load capacity for driver $r$, where $r \in R$ \\
@@ -116,11 +115,13 @@ We will go through the detailed given parameters and decision variables in the m
   \toprule
   Notation & Description \\
   \midrule
-    $u_l$ & Binary variable, 1 if link $l \in L$ is on the shortest path; 0 otherwise. \\
-    $v_{wp}$ & Binary variable, 1 if route $p \in P_r$ is chosen; 0 otherwise. \\
-    $x_p$ & Binary variable, 1 if route $p \in P_r$ is chosen when driver $r \in R$ goes carpooling; 0 otherwise. \\
-    $y_p$ & Binary variable, 1 if route $p \in P_{rd_i}, i \in \{1,2,3,...n\}$ is chosen when passenger $c_i \in C$ with index $i$ does not take a carpooling; 0 otherwise. \\
+    $P_r$ & Set of all paths for driver $r$, where $r \in R$ \\
+    $E_r$ & Set of customers for driver $r$, where $r \in R$ to pick up when the driver goes carpooling \\
     $z_p$ & Binary variable, 1 if route $p \in P_{rw}$ is chosen; 0 otherwise. \\
+    $u_l$ & Binary variable, 1 if link $l \in L$ is on the shortest path; 0 otherwise. \\
+    $x_{pr}$ & Binary variable, 1 if route $p \in P_r$ is chosen when driver $r \in R$ goes carpooling; 0 otherwise. \\
+    $y_{pr}$ & Binary variable, 1 if route $p \in P_{rd_i}, i \in \{1,2,3,...n\}$ is chosen when passenger $c_i \in C$ with index $i$ does not take a carpooling; 0 otherwise. \\
+    $v_{cr}$ & Binary variable, 1 if passenger $c \in C$ is assigned to driver $r \in R$ \\
     $a_r$ & Total fare that the driver $r \in R$ has earned before current decision round. \\
     $b_r$ & Total fare that the driver $r \in R$ has earned after current decision round. \\
   \bottomrule
@@ -133,7 +134,7 @@ We will go through the detailed given parameters and decision variables in the m
 The objective function is to maximize the minimum discount percentage when applying carpooling among passengers in one trip.
 
 \begin{align*}
-  \max_{r} \min \frac{Z_i - carpool\ cost_i}{Z_i} \tag{IP1} \\
+  \max_{r} \min_{i \in E_r} \frac{Z_i - carpool\ cost_i}{Z_i} \tag{IP1} \\
   where\ Z_i = \sum_{p \in P_{rd_i}} \sum_{l \in L} y_p \zeta_{pl} a_l \\
 \end{align*}
 
@@ -156,4 +157,6 @@ The objective function is to maximize the minimum discount percentage when apply
   & \frac{\left(\sum\limits_{r \in R} b_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} b_r^2} \geq \alpha \tag{3.7} \\
   \intertext{Constraint 3.8 is the fairness index in the previous decision round.}
   & \frac{\left(\sum\limits_{r \in R} a_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} a_r^2} \leq \alpha \tag{3.8} \\
+  \intertext{Constraint 3.9 ensures there is only one driver selected for a passenger.}
+  & \sum\limits_{r \in R} v_{cr} \leq 1 \tag{3.9} \\
 \end{align*}

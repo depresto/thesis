@@ -102,6 +102,24 @@
   series = {Lecture {{Notes}} in {{Computer Science}}}
 }
 
+@incollection{bianco_operations_2013,
+  title = {Operations {{Research Models}} for {{Global Route Planning}} in {{Hazardous Material Transportation}}},
+  booktitle = {Handbook of {{OR}}/{{MS Models}} in {{Hazardous Materials Transportation}}},
+  author = {Bianco, Lucio and Caramia, Massimiliano and Giordani, Stefano and Piccialli, Veronica},
+  editor = {Batta, Rajan and Kwon, Changhyun},
+  year = {2013},
+  pages = {49--101},
+  publisher = {{Springer}},
+  address = {{New York, NY}},
+  doi = {10.1007/978-1-4614-6794-6_3},
+  abstract = {The chapter introduces the master routing problem and its variants in hazmat transportation. Global routing is the main focus. Different objectives are discussed taking into account the roles played by the actors involved in the decision process, i.e., carriers and governmental authorities. Emphasis is in particular given to network design and toll setting in such issues. The network design problem consists in defining either the subnetwork of the entire transportation network onto which hazmat flow can be routed with minimum risk, or the capacities allowed for such a flow on each network arc to achieve the same objective. Network design involves also the successive carrier decision about the minimum cost paths to be used on the designed network. Therefore it is a biobjective problem with two decision makers, and, in the literature, a bilevel optimization approach is often used. Toll setting is a recent topic of research in hazmat transportation: the idea is to use a toll policy to discourage carriers from overloading portions of the network with the consequent increase of the risk exposure on the population involved. Approaches based on bilevel optimization and game theory are discussed and compared.},
+  file = {/Users/wayne/Zotero/storage/K2ID8FJ4/Bianco et al. - 2013 - Operations Research Models for Global Route Planni.pdf},
+  isbn = {978-1-4614-6794-6},
+  keywords = {Mixed Integer Programming,Road Segment,Route Planning,Total Risk,Vehicle Route Problem},
+  language = {en},
+  series = {International {{Series}} in {{Operations Research}} \& {{Management Science}}}
+}
+
 @article{braekers_vehicle_2016,
   title = {The Vehicle Routing Problem: {{State}} of the Art Classification and Review},
   shorttitle = {The Vehicle Routing Problem},
@@ -167,6 +185,15 @@
   journal = {Transportation Research Record},
   language = {en},
   number = {1}
+}
+
+@article{charikar_approximation_nodate,
+  title = {Approximation {{Algorithms}} for {{Directed Steiner Tree Problems}}},
+  author = {Charikar, Moses and Chekuri, Chandra and Goel, Ashish and Guha, Sudipto},
+  pages = {13},
+  abstract = {The Steiner tree problem which is known to be NP-Complete is the following. Given a weighted undirected graph G =  V; E , and a set X   V of terminals, the objective is to nd a tree of minimum cost which connects all the terminals. If the graph is directed, in addition to X, we are given a root r 2 V , and the objective is to nd a minimum cost arborescence which connects the root to each of the terminals. In the Generalized Steiner tree problem, we are given a set X of pairs of vertices, and the goal is to nd a subgraph of minimum cost such that each pair in X is connected. In the undirected case, constant factor algorithms are known for both the versions 11, 14, 17, 1, 15 , but essentially no approximation algorithms were known for these problems in the directed case, other than the trivial O k -approximations. We obtain the rst non-trivial approximation algorithms for both problems in general directed graphs. For the Directed Steiner tree problem, we design a family of algorithms that achieve an approximation ratio of O k   in time  O kn1=   for any xed 0, where k is the number of terminals. For the Directed Generalized Steiner tree problem, we give an algorithm that achieves an approximation ratio of  O k2=3 log1=3 k , where k is the number of pairs of vertices that are to be connected. Related problems including the Group Steiner tree problem, the Node Weighted Steiner tree problem and several others can be reduced in an approximation preserving fashion to the problems we solve, giving the rst non-trivial approximations to those as well.},
+  file = {/Users/wayne/Zotero/storage/AB2C8C7D/Charikar et al. - Approximation Algorithms for Directed Steiner Tree.pdf},
+  language = {en}
 }
 
 @inproceedings{chen_fuelsaving_2010,
@@ -348,6 +375,22 @@
   journal = {Transportation}
 }
 
+@article{fisher_optimal_1994,
+  title = {Optimal {{Solution}} of {{Vehicle Routing Problems Using Minimum K}}-{{Trees}}},
+  author = {Fisher, Marshall L.},
+  year = {1994},
+  month = aug,
+  volume = {42},
+  pages = {626--642},
+  publisher = {{INFORMS}},
+  issn = {0030-364X},
+  doi = {10.1287/opre.42.4.626},
+  abstract = {We consider the problem of optimally scheduling a fleet of K vehicles to make deliveries to n customers subject to vehicle capacity constraints. Given a graph with n + 1 nodes, a K-tree is defined to be a set of n + K edges that span the graph. We show that the vehicle routing problem can be modeled as the problem of finding a minimum cost K-tree with two K edges incident on the depot and subject to some side constraints that impose vehicle capacity and the requirement that each customer be visited exactly once. The side constraints are dualized to obtain a Lagrangian problem that provides lower bounds in a branch-and-bound algorithm. This algorithm has produced proven optimal solutions for a number of difficult problems, including a well-known problem with 100 customers and several real problems with 25\textendash 71 customers.},
+  file = {/Users/wayne/Zotero/storage/3QBIFFPE/Fisher - 1994 - Optimal Solution of Vehicle Routing Problems Using.pdf;/Users/wayne/Zotero/storage/H6TTIHHR/opre.42.4.html},
+  journal = {Operations Research},
+  number = {4}
+}
+
 @inproceedings{foti_nash_2017,
   title = {The {{Nash Equilibrium Among Taxi Ridesharing Partners}}},
   booktitle = {Proceedings of the 25th {{ACM SIGSPATIAL International Conference}} on {{Advances}} in {{Geographic Information Systems}}},
@@ -470,13 +513,13 @@
   pages = {290527 Bytes},
   doi = {10.6084/m9.figshare.710636},
   abstract = {Using a private car is a transportation system very common in industrialized countries. However, it causes different problems such as overuse of oil, traffic jams causing earth pollution, health problems and an inefficient use of personal time. One possible solution to these problems is carpooling, i.e. sharing a trip on a private car of a driver with one or more passengers. Carpooling would reduce the number of cars on streets hence providing worldwide environmental, economical and social benefits. The matching of drivers and passengers can be facilitated by information and communication technologies. Typically, a driver inserts on a web-site the availability of empty seats on his/her car for a planned trip and potential passengers can search for trips and contact the drivers. This process is slow and can be appropriate for long trips planned days in advance. We call this static carpooling and we note it is not used frequently by people even if there are already many web-sites offering this service and in fact the only real open challenge is widespread adoption. Dynamic carpooling, on the other hand, takes advantage of the recent and increasing adoption of Internet-connected geo-aware mobile devices for enabling impromptu trip opportunities. Passengers request trips directly on the street and can find a suitable ride in just few minutes. Currently there are no dynamic carpooling systems widely used. Every attempt to create and organize such systems failed. This paper reviews the state of the art of dynamic carpooling. It identifies the most important issues against the adoption of dynamic carpooling systems and the proposed solutions for such issues. It proposes a first input on solving the problem of mass-adopting dynamic carpooling systems.},
-  archivePrefix = {arXiv},
+  archiveprefix = {arXiv},
   eprint = {1306.0361},
   eprinttype = {arxiv},
   file = {/Users/wayne/Zotero/storage/XMB42I66/Graziotin - 2013 - An Analysis of issues against the adoption of Dyna.pdf;/Users/wayne/Zotero/storage/U6LKFHC4/1306.html},
   journal = {arXiv:1306.0361 [cs]},
   keywords = {Computer Science - Computers and Society},
-  primaryClass = {cs}
+  primaryclass = {cs}
 }
 
 @inproceedings{gupta_dial_2007,
@@ -542,6 +585,19 @@
   number = {2S}
 }
 
+@article{hsieh_fasterdsp_2006,
+  title = {{{FasterDSP}}: {{A Faster Approximation Algorithm}} for {{Directed Steiner Tree Problem}}.},
+  shorttitle = {{{FasterDSP}}},
+  author = {Hsieh, Ming-I and Wu, Eric and Tsai, Meng-Feng},
+  year = {2006},
+  month = nov,
+  volume = {22},
+  pages = {1409--1425},
+  abstract = {Given a weighted directed graph G = (V, E, c), where c : E -{$>$} R(+) is an edge cost function, a subset X of vertices (terminals), and a root vertex v(r), the directed Steiner tree problem (DSP) asks for a minimum-cost tree which spans the paths from root vertex v(r) to each terminal. Charikar et al.'s algorithm is well-known for this problem. It achieves an approximation guarantee of l(l - 1)k(1/l) in O(n(l)k(2l)) time for any fixed level l {$>$} 1, where 1 is the level of the tree produced by the algorithm, n is the number of vertices, vertical bar V vertical bar, and k is the number of terminals, vertical bar X vertical bar. However, it requires a great amount of computing power, and there are some problems in the proof of the approximation guarantee of the algorithm. This paper provides a faster approximation algorithm improving Charikar et al.'s DSP algorithm with a better time complexity, O(n(l)K(l) + n(2)k + nm), where m is the number of edges, and an amended root 8k - delta In k factor for the 2-level Steiner tree, where delta = root 6 - 2 = 0.4494.},
+  file = {/Users/wayne/Zotero/storage/C7927QXL/Hsieh et al. - 2006 - FasterDSP A Faster Approximation Algorithm for Di.pdf},
+  journal = {J. Inf. Sci. Eng.}
+}
+
 @article{huang_geneticalgorithmbased_2015,
   title = {A {{Genetic}}-{{Algorithm}}-{{Based Approach}} to {{Solve Carpool Service Problems}} in {{Cloud Computing}}},
   author = {Huang, S. and Jiau, M. and Lin, C.},
@@ -603,7 +659,7 @@
   year = {1998},
   month = sep,
   abstract = {Fairness is an important performance criterion in all resource allocation schemes, including those in distributed computer systems. However, it is often specified only qualitatively. The quantitative measures proposed in the literature are either too specific to a particular application, or suffer from some undesirable characteristics. In this paper, we have introduced a quantitative measure called Indiex of FRairness. The index is applicable to any resource sharing or allocation problem. It is independent of the amount of the resource. The fairness index always lies between 0 and 1. This boundedness aids intuitive understanding of the fairness index. For example, a distribution algorithm with a fairness of 0.10 means that it is unfair to 90\% of the users. Also, the discrimination index can be defined as 1 - fairness index.},
-  archivePrefix = {arXiv},
+  archiveprefix = {arXiv},
   eprint = {cs/9809099},
   eprinttype = {arxiv},
   file = {/Users/wayne/Zotero/storage/AY8SD5V4/Jain et al. - 1998 - A Quantitative Measure Of Fairness And Discriminat.pdf;/Users/wayne/Zotero/storage/DH59I6BW/9809099.html},
@@ -664,6 +720,23 @@
   abstract = {DiVA portal is a finding tool for research publications and student theses written at the following 49 universities and research institutions.},
   file = {/Users/wayne/Zotero/storage/FR7CRTY5/Kleiner et al. - 2011 - A Mechanism for Dynamic Ride Sharing based on Para.pdf;/Users/wayne/Zotero/storage/K47SNZG8/record.html;/Users/wayne/Zotero/storage/S4UPWXU5/record.html},
   language = {eng}
+}
+
+@article{lin_vehicle_2011,
+  title = {A Vehicle Routing Problem with Pickup and Delivery Time Windows, and Coordination of Transportable Resources},
+  author = {Lin, C. K. Y.},
+  year = {2011},
+  month = nov,
+  volume = {38},
+  pages = {1596--1609},
+  issn = {0305-0548},
+  doi = {10.1016/j.cor.2011.01.021},
+  abstract = {This paper addresses a pickup and delivery problem with time window constraints, using two types of delivery resources, which allows for coordination. A heavy resource (in this case a van) may carry both delivery items and one or more units of the lighter resource (foot couriers) on its single- or multi-route assignment. Foot couriers can pick up and deliver items independently, or travel with a van on its outbound and/or return leg. Coordination between resources can save time and cut costs. The optimization of this type of coordinated logistics system has received scant coverage in the literature. The objective criterion is the total cost (i.e., the sum of fixed cost and travelling cost) of both heavy and light resources. The problem is first formulated as a mixed integer program, assuming a reasonable coordination strategy. A two-stage heuristic is designed by employing both exact approaches and an ejection chain based on modifying the shortest path algorithm implemented in a dynamic network. The two-stage heuristic is compared with optimization models for an independent strategy and a partial coordination strategy on both local and simulated instances of up to 200 customers. Under certain conditions, the benefit of coordination is realized over the independent strategy in terms of lower average total cost and usage of heavy resource.},
+  file = {/Users/wayne/Zotero/storage/6SYFXVN7/Lin - 2011 - A vehicle routing problem with pickup and delivery.pdf;/Users/wayne/Zotero/storage/XFQ6WNWI/S0305054811000335.html},
+  journal = {Computers \& Operations Research},
+  keywords = {Heuristic,Inbound/outbound coordination,Pickups and deliveries,Time windows,Transportable resource,Vehicle routing},
+  language = {en},
+  number = {11}
 }
 
 @article{lu_fair_2019,
@@ -745,6 +818,19 @@
   journal = {Transportation Research Part B: Methodological},
   keywords = {OD-based pricing strategy,Parallel projection methods,Ride-matching constraints,Ridesharing user equilibrium (RUE),Variational inequality (VI)},
   language = {en}
+}
+
+@inproceedings{martinez_steiner_2006,
+  title = {Steiner {{Trees}} with a {{Terminal Order}}},
+  booktitle = {2006 15th {{International Conference}} on {{Computing}}},
+  author = {Martinez, F. V. and Soares, J.},
+  year = {2006},
+  month = nov,
+  pages = {254--259},
+  doi = {10.1109/CIC.2006.69},
+  abstract = {The Steiner tree problem with a terminal order (STO) consists of finding a minimum cost Steiner tree where terminals must respect a permutation. This permutation of terminal vertices gives their ranking on a real line and the minimum cost Steiner tree must be drawable in a planar way on one side of this line. A requirement like this can be found in VLSI-design problems. We propose a polynomial time algorithm to the k-Steiner tree problem with a terminal order (kSTO) and a polynomial time approximation scheme to the STO},
+  file = {/Users/wayne/Zotero/storage/5HUD4M2B/Martinez and Soares - 2006 - Steiner Trees with a Terminal Order.pdf;/Users/wayne/Zotero/storage/P5WITWTC/4023818.html},
+  keywords = {Approximation algorithms,Costs,Joining processes,Phylogeny,Polynomials,Routing,Steiner trees,Transportation,Tree graphs}
 }
 
 @article{masson_dialaride_2014,
@@ -834,6 +920,19 @@
   language = {en}
 }
 
+@misc{noauthor_jidongcheliangdengjishuchaxunjieguowangye_nodate,
+  title = {機動車輛登記數查詢結果網頁},
+  howpublished = {https://stat.motc.gov.tw/mocdb/stmain.jsp?sys=220\&funid=a330101\&type=1\&dweb=1\&deflst=1}
+}
+
+@misc{noauthor_ridehailing_nodate,
+  title = {Ride-{{Hailing}} Is a {{Problem}} for the {{Climate}} | {{Union}} of {{Concerned Scientists}}},
+  abstract = {Ride-hailing services are increasing carbon pollution. What can be done?},
+  file = {/Users/wayne/Zotero/storage/MK82PPLZ/ride-hailing-problem-climate.html},
+  howpublished = {https://www.ucsusa.org/resources/ride-hailing-problem-climate},
+  language = {en}
+}
+
 @misc{noauthor_steiner_nodate,
   title = {Steiner {{Tree}} and {{TSP}} | {{SpringerLink}}},
   file = {/Users/wayne/Zotero/storage/BP7M22I9/978-3-662-04565-7_3.html},
@@ -869,6 +968,21 @@
   file = {/Users/wayne/Zotero/storage/GLZH3R8C/Pettie - 2008 - Minimum Spanning Trees.pdf},
   isbn = {978-0-387-30162-4},
   language = {en}
+}
+
+@article{rothvoss_directed_2012,
+  title = {Directed {{Steiner Tree}} and the {{Lasserre Hierarchy}}},
+  author = {Rothvo{\ss}, Thomas},
+  year = {2012},
+  month = jun,
+  abstract = {The goal for the Directed Steiner Tree problem is to find a minimum cost tree in a directed graph G=(V,E) that connects all terminals X to a given root r. It is well known that modulo a logarithmic factor it suffices to consider acyclic graphs where the nodes are arranged in L {$<$}= log |X| levels. Unfortunately the natural LP formulation has a |X|\^(1/2) integrality gap already for 5 levels. We show that for every L, the O(L)-round Lasserre Strengthening of this LP has integrality gap O(L log |X|). This provides a polynomial time |X|\^\{epsilon\}-approximation and a O(log\^3 |X|) approximation in O(n\^\{log |X|) time, matching the best known approximation guarantee obtained by a greedy algorithm of Charikar et al.\vphantom\}},
+  archiveprefix = {arXiv},
+  eprint = {1111.5473},
+  eprinttype = {arxiv},
+  file = {/Users/wayne/Zotero/storage/36NEGJRD/Rothvoß - 2012 - Directed Steiner Tree and the Lasserre Hierarchy.pdf;/Users/wayne/Zotero/storage/G2H9EE7U/1111.html},
+  journal = {arXiv:1111.5473 [cs]},
+  keywords = {Computer Science - Data Structures and Algorithms,F.2.0},
+  primaryclass = {cs}
 }
 
 @misc{schor_debating_2014,
@@ -1005,6 +1119,33 @@
   file = {/Users/wayne/Zotero/storage/ZIMG9G4I/Yan and Chen - 2011 - An optimization model and a solution algorithm for.pdf},
   journal = {Annals of Operations Research},
   language = {en},
+  number = {1}
+}
+
+@book{yangyiping_luluyunshuyenengyuanxiaohaojiwenshiqitipaifangtuigujipingguzhibiaoyanxi_2020,
+  title = {{陸路運輸業能源消耗及溫室氣體排放推估及評估指標研析. (2/2) (2/2)}},
+  author = {{楊伊萍}},
+  year = {2020},
+  annotation = {OCLC: 1220964151},
+  file = {/Users/wayne/Zotero/storage/4BTZ5KCX/楊伊萍 - 2020 - 陸路運輸業能源消耗及溫室氣體排放推估及評估指標研析. (22) (22).pdf},
+  isbn = {978-986-531-176-6},
+  language = {zh-Hant}
+}
+
+@article{zhan_shortest_1998,
+  title = {Shortest {{Path Algorithms}}: {{An Evaluation Using Real Road Networks}}},
+  shorttitle = {Shortest {{Path Algorithms}}},
+  author = {Zhan, F. Benjamin and Noon, Charles E.},
+  year = {1998},
+  month = feb,
+  volume = {32},
+  pages = {65--73},
+  publisher = {{INFORMS}},
+  issn = {0041-1655},
+  doi = {10.1287/trsc.32.1.65},
+  abstract = {The classic problem of finding the shortest path over a network has been the target of many research efforts over the years. These research efforts have resulted in a number of different algorithms and a considerable amount of empirical findings with respect to performance. Unfortunately, prior research does not provide a clear direction for choosing an algorithm when one faces the problem of computing shortest paths on real road networks. Most of the computational testing on shortest path algorithms has been based on randomly generated networks, which may not have the characteristics of real road networks. In this paper, we provide an objective evaluation of 15 shortest path algorithms using a variety of real road networks. Based on the evaluation, a set of recommended algorithms for computing shortest paths on real road networks is identified. This evaluation should be particularly useful to researchers and practitioners in operations research, management science, transportation, and Geographic Information Systems.},
+  file = {/Users/wayne/Zotero/storage/59Z9VAHH/Zhan and Noon - 1998 - Shortest Path Algorithms An Evaluation Using Real.pdf;/Users/wayne/Zotero/storage/8EHXYA8H/trsc.32.1.html},
+  journal = {Transportation Science},
   number = {1}
 }
 
