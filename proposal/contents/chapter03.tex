@@ -54,9 +54,11 @@ When the passengers choose to take a carpool, which is called "sharing" riding. 
 There are three assumption in out system:
 
 \begin{enumerate}
-  \item Every driving request only includes one passenger. This driving request will be split into multiple one-person driving request for a driving request with multiple people.
   \item System calculation time is not considered, that is, assume that drivers' location will still keep unchanged after the time of system calculation.
   \item The carpooling fare is shared equally by the time passengers in the vehicle. For a specific link in the route with $n$ passengers, the fare of the link for a passenger will be divided by $n$.
+  \item Time spending on any link is proportional to the fare rate on the link.
+  \item Length of any link is proportional to the fare rate on the link.
+  \item All the passengers on the trip will accept the offer of carpooling.
  \end{enumerate}
 
 \subsection{Fairness of Vehicle Dispatching}
@@ -136,8 +138,8 @@ We will go through the detailed given parameters and decision variables in the m
 The objective function is to maximize the minimum discount percentage when applying carpooling among passengers in one trip.
 
 \begin{align*}
-  \max_{r \in R} \min_{c \in C} \frac{Z_c - carpool\ cost_c}{Z_c} \tag{IP1} \\
-  where\ Z_c = \sum_{p \in P_{rc}} \sum_{l \in L} z_p \delta_{pl} f_l t_{cr} \\
+  \max_{r \in R} \min_{c \in C} \frac{origin\ cost_c - carpool\ cost_c}{origin\ cost_c} \tag{IP1} \\
+  where\ origin\ cost_c = \sum_{p \in P_{rc}} \sum_{l \in L} z_p \delta_{pl} f_l t_{cr} \\
 \end{align*}
 
 \subsubsection*{Constraints}
