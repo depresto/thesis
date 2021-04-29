@@ -56,7 +56,6 @@ There are three assumption in out system:
 \begin{enumerate}
   \item System calculation time is not considered, that is, assume that drivers' location will still keep unchanged after the time of system calculation.
   \item The carpooling fare is shared equally by the time passengers in the vehicle. For a specific link in the route with $n$ passengers, the fare of the link for a passenger will be divided by $n$.
-  \item Length of any link is proportional to the fare rate on the link.
   \item All the passengers on the trip will accept the offer of carpooling.
   \item Total driving time is equal to sum of time spending of links that pass by.
  \end{enumerate}
@@ -97,7 +96,7 @@ The road network is represented as a weighted graph $G = (N, L)$, where $N$ is t
     $o_i$ & Origin node of riding request $i \in R$, $o_i \in N$ \\
     $d_i$ & Destination node of riding request $i \in R$, $o_i \in N$ \\
     $q_i$ & Number of passengers associates with riding request $i \in R$ \\
-    $s_i$ & Maximum passengers limit of carpooling associates with riding request $i \in R$ \\
+    $h_i$ & Maximum passengers limit of carpooling associates with riding request $i \in R$ \\
     $T_i$ & Maximum waiting time of riding request $i \in R$. \\
     $Q_c$ & Maximum load capacity for driver, $c \in C$ \\
     $l_{o_i}$ & Artificial link of node $o_i$ \\
@@ -143,8 +142,9 @@ The road network is represented as a weighted graph $G = (N, L)$, where $N$ is t
     $y_{p}$ & Binary variable, 1 if route $p \in P_{cd_i}$ is chosen for driver $c \in C$; 0 otherwise. \\
     $z_{p}$ & Binary variable, 1 if route $p \in P_c$ is chosen for driver $c \in C$; 0 otherwise. \\
     $w_{ci}$ & Binary variable, 1 if riding request $i \in R$ is chosen for driver $c \in C$; 0 otherwise. \\
-    $u_{li}$ & Binary variable, 1 if artificial link $l \in l_{o_i}, i \in R$ is assigned to any drivers; 0 otherwise. \\
-    $v_{li}$ & Binary variable, 1 if artificial link $l \in l_{d_i}, i \in R$ is assigned to any drivers; 0 otherwise. \\
+    $u_{li}$ & Binary variable, 1 if artificial link $l \in l_{o_i}, i \in R$ is passed by any drivers; 0 otherwise. \\
+    $v_{li}$ & Binary variable, 1 if artificial link $l \in l_{d_i}, i \in R$ is passed by any drivers; 0 otherwise. \\
+    $s_{li}$ & Binary variable, 1 if link $l \in L, i \in R$ is passed by any drivers; 0 otherwise. \\
   \bottomrule
   \end{tabularx}
 \end{table}  
@@ -167,17 +167,17 @@ The objective function is to maximize the minimum discount percentage when apply
   & \sum\limits_{p \in P_{co_i}} x_{p} \leq 1 && \forall c \in C, i \in R \label{path_limit_origin} \\
   & \sum\limits_{p \in P_{cd_i}} y_{p} \leq 1 && \forall c \in C, i \in R \label{path_limit_destination} \\
   & \sum\limits_{p \in P_{c}} z_{p} \leq 1 && \forall c \in C \label{path_limit} \\
-  \intertext{Constraint \eqref{riding_request_limit} ensures a riding request will only be assigned by one driver.}
-  & \sum\limits_{c \in C} w_{ci} \leq 1 && \forall i \in R \label{riding_request_limit}
-  \intertext{Constraint \eqref{pick_up_drop_off_limit} ensures a riding request will be picked up before dropping off.}
-  & \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} f_{cl} \leq \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} f_{cl} && \forall l \in L, c \in C, i \in R \label{pick_up_drop_off_limit} \\
   \intertext{Constraints \eqref{link_limit_origin}, \eqref{link_limit_destination} ensure artificial links will be passed by if the order associates with the link is assigned.}
   & \sum\limits_{c \in C} w_{ci} = u_{li} && \forall l \in L, i \in R \label{link_limit_origin} \\
   & \sum\limits_{c \in C} w_{ci} = v_{li} && \forall l \in L, i \in R \label{link_limit_destination} \\
-  \intertext{Constraint 3.2 ensures the selected link on the route we chose is on the shortest path.}
-  & \sum\limits_{p \in P_r} x_p \delta_{pl} \leq u_l && \forall l \in L \\
-  \intertext{Constraint 3.4 ensures that all the routes to passengers or destinations we chose is on the shortest path and overlap the route we chose.}
-  & \sum\limits_{p \in P_w} z_p \delta_{pl} \leq u_l && \forall w \in W \\
+  \intertext{Constraint \eqref{riding_request_limit} ensures a riding request will only be assigned by at most one driver.}
+  & \sum\limits_{c \in C} w_{ci} \leq 1 && \forall i \in R \label{riding_request_limit}
+  \intertext{Constraint \eqref{pick_up_drop_off_limit} ensures a riding request will be picked up before dropping off.}
+  & \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} f_{cl} \leq \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} f_{cl} && \forall l \in L, c \in C, i \in R \label{pick_up_drop_off_limit} \\
+  \intertext{Constraints \eqref{overlap_limit}, \eqref{overlap_limit_origin}, \eqref{overlap_limit_destination} ensure paths to origin or destination is overlapped with the carpooling path. }
+  & \sum\limits_{p \in P_{c}} z_{p} \delta_{pl} = s_{li} && \forall l \in L, i \in R \label{overlap_limit} \\
+  & \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} \leq s_{li} && \forall l \in L, i \in R \label{overlap_limit_origin} \\
+  & \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} \leq s_{li} && \forall l \in L, i \in R \label{overlap_limit_destination} \\
   \intertext{Constraint 3.7 ensures the fairness index after current decision round will not less than the previous decision round.}
   & \frac{\left(\sum\limits_{r \in R} b_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} b_r^2} \geq \alpha \\
   \intertext{Constraint 3.8 is the fairness index in the previous decision round.}
