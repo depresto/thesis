@@ -107,7 +107,7 @@ The road network is represented as a weighted graph $G = (N, L)$, where $N$ is t
     $t_{cl}$ & The driving time for driver $c \in C$ on the link $l \in L$ \\
     $f_{cl}$ & The fare rate for driver $c \in C$ on the link $l \in L$ \\
     $f_{ci}$ & The fare rate of exclusive riding request $i \in R$ for driver $c \in C$ \\
-    $B_c$ & Set of riding requests that driver $c \in C$ has picked up \\
+    $B_c$ & Set of riding requests that driver $c \in C$ has accepted in previous decision round. \\
   \bottomrule
   \end{tabularx}
 \end{table}  
@@ -172,7 +172,7 @@ The objective function is to maximize the minimum discount percentage when apply
   & \sum\limits_{c \in C} w_{ci} = v_{li} && \forall l \in L, i \in R \label{link_limit_destination} \\
   \intertext{Constraint \eqref{riding_request_limit} ensures a riding request will only be assigned by at most one driver.}
   & \sum\limits_{c \in C} w_{ci} \leq 1 && \forall i \in R \label{riding_request_limit}
-  \intertext{Constraint \eqref{previous_riding_request} ensures riding requests a driver has picked up are assigned.}
+  \intertext{Constraint \eqref{previous_riding_request} ensures every riding requests a driver has picked up in previous round are assigned.}
   & \sum\limits_{c \in C} w_{ci} = 1 && \forall i \in B_c \label{previous_riding_request}
   \intertext{Constraint \eqref{pick_up_drop_off_limit} ensures a riding request will be picked up before dropping off.}
   & \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} f_{cl} \leq \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} f_{cl} && \forall l \in L, c \in C, i \in R \label{pick_up_drop_off_limit} \\
@@ -186,6 +186,4 @@ The objective function is to maximize the minimum discount percentage when apply
   & \frac{\left(\sum\limits_{r \in R} b_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} b_r^2} \geq \alpha \\
   \intertext{Constraint 3.8 is the fairness index in the previous decision round.}
   & \frac{\left(\sum\limits_{r \in R} a_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} a_r^2} \leq \alpha \\
-  \intertext{Constraint 3.9 ensures there is only one driver selected for a passenger.}
-  & \sum\limits_{r \in R} v_{cr} \leq 1
 \end{align}
