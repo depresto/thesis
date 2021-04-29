@@ -96,7 +96,8 @@ The road network is represented as a weighted graph $G = (N, L)$, where $N$ is t
     $N$ & Set of nodes on the road network \\
     $o_i$ & Origin node of riding request $i \in R$, $o_i \in N$ \\
     $d_i$ & Destination node of riding request $i \in R$, $o_i \in N$ \\
-    $q_i$ & Passenger count of riding request $i \in R$ \\
+    $q_i$ & Number of passengers associates with riding request $i \in R$ \\
+    $s_i$ & Maximum passengers limit of carpooling associates with riding request $i \in R$ \\
     $T_i$ & Maximum waiting time of riding request $i \in R$. \\
     $Q_c$ & Maximum load capacity for driver, $c \in C$ \\
     $l_{o_i}$ & Artificial link of node $o_i$ \\
@@ -107,6 +108,7 @@ The road network is represented as a weighted graph $G = (N, L)$, where $N$ is t
     $t_{cl}$ & The driving time for driver $c \in C$ on the link $l \in L$ \\
     $f_{cl}$ & The fare rate for driver $c \in C$ on the link $l \in L$ \\
     $f_{ci}$ & The fare rate of exclusive riding request $i \in R$ for driver $c \in C$ \\
+    $B_c$ & Set of riding requests that driver $c \in C$ has picked up \\
   \bottomrule
   \end{tabularx}
 \end{table}  
@@ -121,14 +123,10 @@ The road network is represented as a weighted graph $G = (N, L)$, where $N$ is t
   \toprule
   Notation & Description \\
   \midrule
-    $B_r$ & Set of passengers that driver $r$ has picked up, where $r \in R$ \\
-    $L_c$ & Set of links on the road network that pass by the passenger $c \in C$ \\
-    $L_d$ & Set of links on the road network that pass by the destination $d \in D$ \\
-    $q_r$ & initial load capacity for driver $r$, where $r \in R$ \\
-    $g_r$ & The capacity that the driver $r \in R$ has loaded in the previous decision round. \\
-    $\alpha$ & The fairness index in the previous decision round. \\
+    $E$ & Maximum detour ratio for hitchhiking \\
     $\delta_{pl}$ & Indicator function which is 1 if link $l \in L$ on the route $p \in P_c \cup P_{co_i} \cup P_{cd_i}$ \\
     $a_r$ & Total fare that the driver $r \in R$ has earned before current decision round. \\
+    $\alpha$ & The fairness index in the previous decision round. \\
   \bottomrule
   \end{tabularx}
 \end{table}  
@@ -141,14 +139,12 @@ The road network is represented as a weighted graph $G = (N, L)$, where $N$ is t
   \toprule
   Notation & Description \\
   \midrule
-    $x_{pc}$ & Binary variable, 1 if route $p \in P_r$ is chosen for driver $c \in C$; 0 otherwise. \\
-    $z_p$ & Binary variable, 1 if route $p \in P_{rw}$ is chosen; 0 otherwise. \\
-    $u_l$ & Binary variable, 1 if link $l \in L$ is on the shortest path; 0 otherwise. \\
-    $y_{pr}$ & Binary variable, 1 if route $p \in P_{rk}, k \in \{1,2,3,...D\}$ is chosen when passenger $j \in \{1,2,3,...,c\}$ with index $i$ does not take a carpooling; 0 otherwise. \\
-    $v_{cr}$ & Binary variable, 1 if passenger $c \in C$ is assigned to driver $r \in R$ when the driver takes carpooling. \\
-    $t_{cr}$ & Binary variable, 1 if passenger $c \in C$ is assigned to driver $r \in R$ when the driver does not take carpooling. \\
-    $b_r$ & Total fare that the driver $r \in R$ has earned after current decision round. \\
-    $s_{cl}$ & Binary variable, 1 if passenger $c \in C$ is in the driving of driver $r \in R$ \\
+    $x_{p}$ & Binary variable, 1 if route $p \in P_{co_i}$ is chosen for driver $c \in C$; 0 otherwise. \\
+    $y_{p}$ & Binary variable, 1 if route $p \in P_{cd_i}$ is chosen for driver $c \in C$; 0 otherwise. \\
+    $z_{p}$ & Binary variable, 1 if route $p \in P_c$ is chosen for driver $c \in C$; 0 otherwise. \\
+    $w_{ci}$ & Binary variable, 1 if riding request $i \in R$ is chosen for driver $c \in C$; 0 otherwise. \\
+    $u_{li}$ & Binary variable, 1 if artificial link $l \in l_{o_i}, i \in R$ is assigned to any drivers; 0 otherwise. \\
+    $v_{li}$ & Binary variable, 1 if artificial link $l \in l_{d_i}, i \in R$ is assigned to any drivers; 0 otherwise. \\
   \bottomrule
   \end{tabularx}
 \end{table}  
@@ -159,31 +155,33 @@ The road network is represented as a weighted graph $G = (N, L)$, where $N$ is t
 The objective function is to maximize the minimum discount percentage when applying carpooling among passengers in one trip.
 
 \begin{align*}
-  \max_{r \in R} \min_{c \in C} \frac{origin\ cost_c - carpool\ cost_c}{origin\ cost_c} \tag{IP1} \\
-  where\ origin\ cost_c = \sum_{p \in P_{rc}} \sum_{l \in L} z_p \delta_{pl} f_l t_{cr} \\
+  \max_{i \in R} \min_{c \in C} \frac{w_{ci} f_{ci} - carpool\ cost_c}{w_{ci} f_{ci}} \tag{IP1} \\
 \end{align*}
 
 \subsubsection*{Constraints}
 
 \begin{align}
-  \intertext{Constraint 3.1 ensures there is only one path selected for a driver.}
-  & \sum\limits_{p \in P_r} x_{pc} \leq 1 \\
-  \intertext{Constraint \eqref{eq:waiting_time} ensures the waiting time is suit for riding request.}
-  & \sum\limits_{p \in P_{co_i}} x_{pc} \delta_{pl} t_{cl} \leq T_i \label{eq:waiting_time} \\
+  \intertext{Constraint \eqref{waiting_time} ensures the waiting time is suit for the riding request.}
+  & \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} t_{cl} \leq T_i && \forall l \in L, c \in C, i \in R \label{waiting_time} \\
+  \intertext{Constraints \eqref{path_limit_origin}, \eqref{path_limit_destination}, \eqref{path_limit} ensure there is only one path selected for a driver.}
+  & \sum\limits_{p \in P_{co_i}} x_{p} \leq 1 && \forall c \in C, i \in R \label{path_limit_origin} \\
+  & \sum\limits_{p \in P_{cd_i}} y_{p} \leq 1 && \forall c \in C, i \in R \label{path_limit_destination} \\
+  & \sum\limits_{p \in P_{c}} z_{p} \leq 1 && \forall c \in C \label{path_limit} \\
+  \intertext{Constraint \eqref{riding_request_limit} ensures a riding request will only be assigned by one driver.}
+  & \sum\limits_{c \in C} w_{ci} \leq 1 && \forall i \in R \label{riding_request_limit}
+  \intertext{Constraint \eqref{pick_up_drop_off_limit} ensures a riding request will be picked up before dropping off.}
+  & \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} f_{cl} \leq \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} f_{cl} && \forall l \in L, c \in C, i \in R \label{pick_up_drop_off_limit} \\
+  \intertext{Constraints \eqref{link_limit_origin}, \eqref{link_limit_destination} ensure artificial links will be passed by if the order associates with the link is assigned.}
+  & \sum\limits_{c \in C} w_{ci} = u_{li} && \forall l \in L, i \in R \label{link_limit_origin} \\
+  & \sum\limits_{c \in C} w_{ci} = v_{li} && \forall l \in L, i \in R \label{link_limit_destination} \\
   \intertext{Constraint 3.2 ensures the selected link on the route we chose is on the shortest path.}
-  & \sum\limits_{p \in P_r} x_p \delta_{pl} \leq u_l && \forall l \in L \tag{3.2} \\
-  \intertext{Constraint 3.3 ensures all the links pass by the node of passenger or destination we chose is the shortest path.}
-  & u_l \leq 1 && \forall l \in L_c \cup L_d \tag{3.3} \\
+  & \sum\limits_{p \in P_r} x_p \delta_{pl} \leq u_l && \forall l \in L \\
   \intertext{Constraint 3.4 ensures that all the routes to passengers or destinations we chose is on the shortest path and overlap the route we chose.}
-  & \sum\limits_{p \in P_w} z_p \delta_{pl} \leq u_l && \forall w \in W \tag{3.4} \\
-  \intertext{Constraint 3.5 ensures the route we chose will only pass by the node of passenger or destination once.}
-  & \sum\limits_{p \in P_w} z_p \leq 1 && \forall w \in W \tag{3.5} \\
-  \intertext{Constraint 3.6 ensures that we must pick up the passenger before we drop off the passenger.}
-  & \sum\limits_{l \in L} \sum\limits_{p \in P_{rj}} z_p \delta_{pl} f_l \leq \sum\limits_{l \in L} \sum\limits_{p \in P_{rk}} z_p \delta_{pl} f_l && \forall i \in \{1,2,,...,n\}, r \in D \tag{3.6} \\
+  & \sum\limits_{p \in P_w} z_p \delta_{pl} \leq u_l && \forall w \in W \\
   \intertext{Constraint 3.7 ensures the fairness index after current decision round will not less than the previous decision round.}
-  & \frac{\left(\sum\limits_{r \in R} b_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} b_r^2} \geq \alpha \tag{3.7} \\
+  & \frac{\left(\sum\limits_{r \in R} b_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} b_r^2} \geq \alpha \\
   \intertext{Constraint 3.8 is the fairness index in the previous decision round.}
-  & \frac{\left(\sum\limits_{r \in R} a_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} a_r^2} \leq \alpha \tag{3.8} \\
+  & \frac{\left(\sum\limits_{r \in R} a_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} a_r^2} \leq \alpha \\
   \intertext{Constraint 3.9 ensures there is only one driver selected for a passenger.}
-  & \sum\limits_{r \in R} v_{cr} \leq 1 \tag{3.9} \\
+  & \sum\limits_{r \in R} v_{cr} \leq 1
 \end{align}
