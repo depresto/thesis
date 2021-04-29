@@ -172,12 +172,16 @@ The objective function is to maximize the minimum discount percentage when apply
   & \sum\limits_{c \in C} w_{ci} = v_{li} && \forall l \in L, i \in R \label{link_limit_destination} \\
   \intertext{Constraint \eqref{riding_request_limit} ensures a riding request will only be assigned by at most one driver.}
   & \sum\limits_{c \in C} w_{ci} \leq 1 && \forall i \in R \label{riding_request_limit}
+  \intertext{Constraint \eqref{previous_riding_request} ensures riding requests a driver has picked up are assigned.}
+  & \sum\limits_{c \in C} w_{ci} = 1 && \forall i \in B_c \label{previous_riding_request}
   \intertext{Constraint \eqref{pick_up_drop_off_limit} ensures a riding request will be picked up before dropping off.}
   & \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} f_{cl} \leq \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} f_{cl} && \forall l \in L, c \in C, i \in R \label{pick_up_drop_off_limit} \\
   \intertext{Constraints \eqref{overlap_limit}, \eqref{overlap_limit_origin}, \eqref{overlap_limit_destination} ensure paths to origin or destination is overlapped with the carpooling path. }
   & \sum\limits_{p \in P_{c}} z_{p} \delta_{pl} = s_{li} && \forall l \in L, i \in R \label{overlap_limit} \\
   & \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} \leq s_{li} && \forall l \in L, i \in R \label{overlap_limit_origin} \\
   & \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} \leq s_{li} && \forall l \in L, i \in R \label{overlap_limit_destination} \\
+  \intertext{Constraint \eqref{capacity_limit} ensures that riding requests will not exceed capacity of the cab}
+  & \sum\limits_{i \in R \cup B_c} \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} w_{ci} q_i - \sum\limits_{i \in R \cup B_c} \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} w_{ci} q_i \leq Q_c && \forall l \in L, c \in C \label{capacity_limit} \\
   \intertext{Constraint 3.7 ensures the fairness index after current decision round will not less than the previous decision round.}
   & \frac{\left(\sum\limits_{r \in R} b_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} b_r^2} \geq \alpha \\
   \intertext{Constraint 3.8 is the fairness index in the previous decision round.}
