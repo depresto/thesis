@@ -56,9 +56,9 @@ There are three assumption in out system:
 \begin{enumerate}
   \item System calculation time is not considered, that is, assume that drivers' location will still keep unchanged after the time of system calculation.
   \item The carpooling fare is shared equally by the time passengers in the vehicle. For a specific link in the route with $n$ passengers, the fare of the link for a passenger will be divided by $n$.
-  \item Time spending on any link is proportional to the fare rate on the link.
   \item Length of any link is proportional to the fare rate on the link.
   \item All the passengers on the trip will accept the offer of carpooling.
+  \item Total driving time is equal to sum of time spending of links that pass by.
  \end{enumerate}
 
 \subsection{Fairness of Vehicle Dispatching}
@@ -79,6 +79,8 @@ However, when the driving resource changes, such as a new driver joins our syste
 
 We will go through the detailed given parameters and decision variables in the mathematical model before describing our mathematical model.
 
+The road network is represented as a weighted graph $G = (N, L)$, where $N$ is the nodes and $L$ is the links in the graph.
+
 \renewcommand\arraystretch{1.5}
 \par
 \begin{table}[ht]
@@ -88,21 +90,44 @@ We will go through the detailed given parameters and decision variables in the m
   \toprule
   Notation & Description \\
   \midrule
-    $C$ & Set of passengers in the system (take $j$ as index) \\
-    $D$ & Set of destinations in the system (take $k$ as index) \\
-    $R$ & Set of drivers in the system (take $i$ as index) \\
-    $W$ & Set of passengers or destinations in the system, where $W = P \cup D$ \\
-    $B_r$ & Set of passengers that driver $r$ has picked up, where $r \in R$ \\
+    $R$ & Set of riding requests (take $i$ as index) \\
+    $C$ & Set of cab drivers in the system \\
     $L$ & Set of links on the road network \\
+    $N$ & Set of nodes on the road network \\
+    $o_i$ & Origin node of riding request $i \in R$, $o_i \in N$ \\
+    $d_i$ & Destination node of riding request $i \in R$, $o_i \in N$ \\
+    $q_i$ & Passenger count of riding request $i \in R$ \\
+    $T_i$ & Maximum waiting time of riding request $i \in R$. \\
+    $Q_c$ & Maximum load capacity for driver, $c \in C$ \\
+    $l_{o_i}$ & Artificial link of node $o_i$ \\
+    $l_{d_i}$ & Artificial link of node $d_i$ \\
+    $P_{co_i}$ & Set of paths from current location of driver $c \in C$ to origin node of riding request $i \in R$ \\
+    $P_{cd_i}$ & Set of paths from current location of driver $c \in C$ to destination node of riding request $i \in R$ \\
+    $P_c$ & Set of available paths for driver $c \in C$  \\
+    $t_{cl}$ & The driving time for driver $c \in C$ on the link $l \in L$ \\
+    $f_{cl}$ & The fare rate for driver $c \in C$ on the link $l \in L$ \\
+    $f_{ci}$ & The fare rate of exclusive riding request $i \in R$ for driver $c \in C$ \\
+  \bottomrule
+  \end{tabularx}
+\end{table}  
+\par
+
+\renewcommand\arraystretch{1.5}
+\par
+\begin{table}[ht]
+  \centering
+  \caption{Notations of given parameters}
+  \begin{tabularx}{\textwidth}{cX}
+  \toprule
+  Notation & Description \\
+  \midrule
+    $B_r$ & Set of passengers that driver $r$ has picked up, where $r \in R$ \\
     $L_c$ & Set of links on the road network that pass by the passenger $c \in C$ \\
     $L_d$ & Set of links on the road network that pass by the destination $d \in D$ \\
-    $Q_r$ & Maximum load capacity for driver $r$, where $r \in R$ \\
     $q_r$ & initial load capacity for driver $r$, where $r \in R$ \\
-    $f_l$ & The fare for the link $l$, where $l \in L$ \\
     $g_r$ & The capacity that the driver $r \in R$ has loaded in the previous decision round. \\
     $\alpha$ & The fairness index in the previous decision round. \\
-    $\delta_{pl}$ & Indicator function which is 1 if link $l \in L$ on the route $p \in P_r$ when driver $r \in R$ goes carpooling; 0 otherwise \\
-    $\gamma_{pl}$ & Indicator function which is 1 if link $l \in L$ on the route $p \in P_{rk}, i \in \{1,2,3,...,n\}$ is selected when passenger $j \in \{1,2,3,...,c\}$ with index $i$; 0 otherwise \\
+    $\delta_{pl}$ & Indicator function which is 1 if link $l \in L$ on the route $p \in P_c \cup P_{co_i} \cup P_{cd_i}$ \\
     $a_r$ & Total fare that the driver $r \in R$ has earned before current decision round. \\
   \bottomrule
   \end{tabularx}
@@ -116,13 +141,9 @@ We will go through the detailed given parameters and decision variables in the m
   \toprule
   Notation & Description \\
   \midrule
-    $P_r$ & Set of all paths for driver $r$, where $r \in R$ \\
-    $P_{rw}$ & Set of all paths for driver $r$ from initial location to a passenger or a destination, where $r \in R$ and $w \in W$ \\
-    $P_{rj}$ & Set of all paths for driver $r$ from initial location to passenger $j$, where $r \in R$ and $j \in C$ \\
-    $P_{rk}$ & Set of all paths for driver $r$ from initial location to destination $k$, where $r \in R$ and $k \in D$ \\
+    $x_{pc}$ & Binary variable, 1 if route $p \in P_r$ is chosen for driver $c \in C$; 0 otherwise. \\
     $z_p$ & Binary variable, 1 if route $p \in P_{rw}$ is chosen; 0 otherwise. \\
     $u_l$ & Binary variable, 1 if link $l \in L$ is on the shortest path; 0 otherwise. \\
-    $x_{pr}$ & Binary variable, 1 if route $p \in P_r$ is chosen when driver $r \in R$ goes carpooling; 0 otherwise. \\
     $y_{pr}$ & Binary variable, 1 if route $p \in P_{rk}, k \in \{1,2,3,...D\}$ is chosen when passenger $j \in \{1,2,3,...,c\}$ with index $i$ does not take a carpooling; 0 otherwise. \\
     $v_{cr}$ & Binary variable, 1 if passenger $c \in C$ is assigned to driver $r \in R$ when the driver takes carpooling. \\
     $t_{cr}$ & Binary variable, 1 if passenger $c \in C$ is assigned to driver $r \in R$ when the driver does not take carpooling. \\
@@ -144,9 +165,11 @@ The objective function is to maximize the minimum discount percentage when apply
 
 \subsubsection*{Constraints}
 
-\begin{align*}
+\begin{align}
   \intertext{Constraint 3.1 ensures there is only one path selected for a driver.}
-  & \sum\limits_{p \in P_r} x_p \leq 1 \tag{3.1} \\
+  & \sum\limits_{p \in P_r} x_{pc} \leq 1 \\
+  \intertext{Constraint \eqref{eq:waiting_time} ensures the waiting time is suit for riding request.}
+  & \sum\limits_{p \in P_{co_i}} x_{pc} \delta_{pl} t_{cl} \leq T_i \label{eq:waiting_time} \\
   \intertext{Constraint 3.2 ensures the selected link on the route we chose is on the shortest path.}
   & \sum\limits_{p \in P_r} x_p \delta_{pl} \leq u_l && \forall l \in L \tag{3.2} \\
   \intertext{Constraint 3.3 ensures all the links pass by the node of passenger or destination we chose is the shortest path.}
@@ -163,4 +186,4 @@ The objective function is to maximize the minimum discount percentage when apply
   & \frac{\left(\sum\limits_{r \in R} a_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} a_r^2} \leq \alpha \tag{3.8} \\
   \intertext{Constraint 3.9 ensures there is only one driver selected for a passenger.}
   & \sum\limits_{r \in R} v_{cr} \leq 1 \tag{3.9} \\
-\end{align*}
+\end{align}
