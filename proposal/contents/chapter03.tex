@@ -80,6 +80,8 @@ We will go through the detailed given parameters and decision variables in the m
 
 The road network is represented as a weighted graph $G = (N, L)$, where $N$ is the nodes and $L$ is the links in the graph.
 
+A riding request consists with following parameters: origin node, destination node, number of passengers, start time and deadline for driver to pick up.
+
 \renewcommand\arraystretch{1.0}
 \par
 \begin{longtable}{cp{14cm}}
@@ -89,28 +91,32 @@ The road network is represented as a weighted graph $G = (N, L)$, where $N$ is t
   \multicolumn{1}{l}{Description}\\
   \midrule
   \endhead
-    $R$ & Set of riding requests (take $i$ as index) \\
     $C$ & Set of cab drivers in the system \\
+    $R$ & Set of riding requests in the system (take $i$ as index) \\
+    $R'$ & Set of riding requests which are not dispatched in current decision round, $R' \in R$ \\
+    % $G_c$ & Set of riding requests that driver $c \in C$ has accepted but not arrived to the location of passengers in previous decision round. \\
+    % $H_c$ & Set of riding requests that driver $c \in C$ has accepted and picked up in previous decision round. \\
     $O$ & Set of origin nodes of riding requests \\
     $D$ & Set of destination nodes of riding requests \\
     $N$ & Set of nodes on the road network, which include nodes of cab drivers, origin and destination nodes of riding requests, $N \in C \cup O \cup D$ \\
-    $L$ & Set of links on the road network \\
+    $L$ & Set of links on the road network. A link can connect with any two nodes in the road network. \\
     $o_i$ & Origin node of riding request $i \in R$, $o_i \in O$ \\
     $d_i$ & Destination node of riding request $i \in R$, $d_i \in D$ \\
     $q_i$ & Number of passengers associates with riding request $i \in R$ \\
     $h_i$ & Maximum passengers limit of carpooling associates with riding request $i \in R$ \\
-    $T_i$ & Maximum waiting time of riding request $i \in R$. \\
+    $t_i$ & Remaining time to the start time of riding requesting $i \in R$ for driver to pick up in current decision round. \\
+    $u_i$ & Remaining time to the deadline of riding requesting $i \in R$ for driver to pick up in current decision round. \\
+    $T$ & Maximum additional buffer time to wait for pick up in the system. \\
     $Q_c$ & Maximum load capacity for driver, $c \in C$ \\
     $L_{O}$ & Set of artificial links of origin nodes \\
     $L_{D}$ & Set of artificial links of destination nodes \\
     $P_{co_i}$ & Set of paths from current location of driver $c \in C$ to origin node of riding request $i \in R$ \\
     $P_{cd_i}$ & Set of paths from current location of driver $c \in C$ to destination node of riding request $i \in R$ \\
-    $P_c$ & Set of available paths for driver $c \in C$  \\
+    $P_c$ & Set of available paths from current location of driver $c \in C$ to a virtual node out of the road network. A virtual node is connected with all of nodes in the road network, with 0 weight links. \\
     $t_{cl}$ & The driving time for driver $c \in C$ on the link $l \in L$ \\
     $t_{ci}$ & The driving time of exclusive riding request $i \in R$ for driver $c \in C$ \\
     $f_{cl}$ & The fare rate for driver $c \in C$ on the link $l \in L$ \\
     $f_{ci}$ & The fare rate of exclusive riding request $i \in R$ for driver $c \in C$ \\
-    $B_c$ & Set of riding requests that driver $c \in C$ has accepted in previous decision round. \\
     $E$ & Maximum detour time ratio of hitchhiking for passengers in a riding trip. \\
     $\delta_{pl}$ & Indicator function which is 1 if link $l \in L$ on the route $p \in P_c \cup P_{co_i} \cup P_{cd_i}$ \\
     $a_c$ & Total fare that the driver $c \in C$ has earned before current decision round. \\
@@ -119,8 +125,8 @@ The road network is represented as a weighted graph $G = (N, L)$, where $N$ is t
 \end{longtable}  
 \par
 
-\begin{longtable}{cl}
-  \caption{Notations of given parameters}\\
+\begin{longtable}{cp{14cm}}
+  \caption{Notations of decision variables}\\
   \toprule
   \multicolumn{1}{l}{Notation}&
   \multicolumn{1}{l}{Description}\\
@@ -130,9 +136,7 @@ The road network is represented as a weighted graph $G = (N, L)$, where $N$ is t
     $y_{p}$ & Binary variable, 1 if route $p \in P_{cd_i}$ is chosen for driver $c \in C$; 0 otherwise. \\
     $z_{p}$ & Binary variable, 1 if route $p \in P_c$ is chosen for driver $c \in C$; 0 otherwise. \\
     $w_{ci}$ & Binary variable, 1 if riding request $i \in R$ is chosen for driver $c \in C$; 0 otherwise. \\
-    $u_{li}$ & Binary variable, 1 if artificial link $l \in l_{o_i}, i \in R$ is passed by any drivers; 0 otherwise. \\
-    $v_{li}$ & Binary variable, 1 if artificial link $l \in l_{d_i}, i \in R$ is passed by any drivers; 0 otherwise. \\
-    $s_{li}$ & Binary variable, 1 if link $l \in L, i \in R$ is passed by any drivers; 0 otherwise. \\
+    $s_{cli}$ & Binary variable, 1 if link $l \in L \cup L_O \cup L_D, i \in R$ is passed by any driver $c \in C$ in carpooling; 0 otherwise. \\
   \bottomrule
 \end{longtable}  
 \newpage
@@ -148,30 +152,33 @@ The objective function is to maximize the minimum discount percentage when apply
 \subsubsection*{Constraints}
 
 \begin{align}
-  \intertext{Constraint \eqref{waiting_time} ensures the waiting time is suit for the riding request.}
-  & \sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L} x_{p} \delta_{pl} t_{cl} \leq T_i && \forall c \in C, i \in R \label{waiting_time} \\
+  \intertext{Constraint \eqref{waiting_time_start}, \eqref{waiting_time_end} ensures the pick up time is suit for the riding request.}
+  & \sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L} x_{p} \delta_{pl} t_{cl} \geq t_i - T && \forall c \in C, i \in R' \label{waiting_time_start} \\
+  & \sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L} x_{p} \delta_{pl} t_{cl} \leq u_i + T && \forall c \in C, i \in R' \label{waiting_time_end} \\
   \intertext{Constraints \eqref{path_limit_origin}, \eqref{path_limit_destination}, \eqref{path_limit} ensure there is only one path selected for a driver.}
-  & \sum\limits_{p \in P_{co_i}} x_{p} \leq 1 && \forall c \in C, i \in R \label{path_limit_origin} \\
-  & \sum\limits_{p \in P_{cd_i}} y_{p} \leq 1 && \forall c \in C, i \in R \label{path_limit_destination} \\
+  & \sum\limits_{p \in P_{co_i}} x_{p} \leq 1 && \forall c \in C, i \in R' \label{path_limit_origin} \\
+  & \sum\limits_{p \in P_{cd_i}} y_{p} \leq 1 && \forall c \in C, i \in R' \label{path_limit_destination} \\
   & \sum\limits_{p \in P_{c}} z_{p} \leq 1 && \forall c \in C \label{path_limit} \\
-  \intertext{Constraints \eqref{link_limit_origin}, \eqref{link_limit_destination} ensure artificial links will be passed by if the order associates with the link is assigned.}
-  & \sum\limits_{c \in C} w_{ci} = u_{li} && \forall l \in L_O, i \in R \label{link_limit_origin} \\
-  & \sum\limits_{c \in C} w_{ci} = v_{li} && \forall l \in L_D, i \in R \label{link_limit_destination} \\
-  \intertext{Constraint \eqref{riding_request_limit} ensures a riding request will only be assigned by at most one driver.}
-  & \sum\limits_{c \in C} w_{ci} \leq 1 && \forall i \in R \label{riding_request_limit}
-  \intertext{Constraint \eqref{previous_riding_request} ensures every riding requests a driver has picked up in previous round are assigned.}
-  & w_{ci} = 1 && \forall i \in B_c, c \in C \label{previous_riding_request}
-  \intertext{Constraint \eqref{pick_up_drop_off_limit} ensures a riding request will be picked up before dropping off.}
-  & \sum\limits_{p \in P_{co_i}} \sum\limits_{i \in L} x_{p} \delta_{pl} t_{cl} \leq \sum\limits_{p \in P_{cd_i}} \sum\limits_{i \in L} y_{p} \delta_{pl} t_{cl} && \forall c \in C, i \in R \label{pick_up_drop_off_limit} \\
-  \intertext{Constraints \eqref{overlap_limit_origin}, \eqref{overlap_limit_destination} ensure paths to origin or destination is overlapped with the carpooling path. }
-  & \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} \leq \sum\limits_{p \in P_{c}} z_{p} \delta_{pl} && \forall l \in L, i \in R, c \in C \label{overlap_limit_origin} \\
-  & \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} \leq \sum\limits_{p \in P_{c}} z_{p} \delta_{pl} && \forall l \in L, i \in R, c \in C \label{overlap_limit_destination} \\
-  \intertext{Constraint \eqref{capacity_limit} ensures that riding requests will not exceed capacity of the cab}
-  & \sum\limits_{i \in R \cup B_c} \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} w_{ci} q_i - \sum\limits_{i \in R \cup B_c} \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} w_{ci} q_i \leq Q_c && \forall l \in L, c \in C \label{capacity_limit} \\
-  \intertext{Constraint \eqref{detour_ratio_limit} ensures detour time ratio of carpooling to exclusive riding for every riding requests will not be larger than limit of the system.}
-  & \frac{\sum\limits_{p \in P_{cd_i}} \sum\limits_{l \in L} y_{p} \delta_{pl} w_{ci} t_{cl} - \sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L} x_{p} \delta_{pl} w_{ci} t_{cl}}{w_{ci} t_{ci}} \leq E && \forall c \in C, r \in R \label{detour_ratio_limit} \\
-  \intertext{Constraint \eqref{capacity_limit} ensures that riding requests will not exceed capacity limit of the riding request}
-  & \sum\limits_{i \in R \cup B_c} \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} w_{ci} q_i - \sum\limits_{i \in R \cup B_c} \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} w_{ci} q_i \leq h_i && \forall l \in L, c \in C \label{custom_capacity_limit} \\
+  \intertext{Constraint \eqref{riding_request_limit} ensures a riding request only be assigned by at most one driver.}
+  & \sum\limits_{c \in C} w_{ci} \leq 1 && \forall i \in R' \label{riding_request_limit}
+  % \intertext{Constraint \eqref{previous_riding_request} ensures every riding requests a driver has picked up in previous round are assigned.}
+  % & w_{ci} = 1 && \forall i \in G_c \cup H_c, c \in C \label{previous_riding_request}
+  \intertext{Constraint \eqref{pick_up_drop_off_limit} ensures a riding request be picked up before dropping off.}
+  & \sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L} x_{p} \delta_{pl} t_{cl} \leq \sum\limits_{p \in P_{cd_i}} \sum\limits_{l \in L} y_{p} \delta_{pl} t_{cl} && \forall c \in C, i \in R' \label{pick_up_drop_off_limit} \\
+  \intertext{Constraints \eqref{artificial_link_limit} ensure artificial links be passed by if the order associates with the link is assigned.}
+  & s_{cli} = w_{ci} && \forall l \in L_O \cup L_D, i \in R', c \in C \label{artificial_link_limit} \\
+  \intertext{Constraints \eqref{overlap_limit_route}, \eqref{overlap_limit_origin}, \eqref{overlap_limit_destination} ensure paths to origin or destination is overlapped with the carpooling path. }
+  & \sum\limits_{p \in P_{c}} z_{p} \delta_{pl} w_{ci} = s_{cli} && \forall l \in L \cup L_O \cup L_D, i \in R', c \in C \label{overlap_limit_route} \\
+  & \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} \leq s_{cli} && \forall l \in L \cup L_O \cup L_D, i \in R', c \in C \label{overlap_limit_origin} \\
+  & \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} \leq s_{cli} && \forall l \in L \cup L_O \cup L_D, i \in R', c \in C \label{overlap_limit_destination} \\
+  \intertext{Constraint \eqref{capacity_limit} ensures that riding requests not exceed capacity of the cab}
+  % & \sum\limits_{i \in R' \cup H_c} \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} w_{ci} q_i - \sum\limits_{i \in R' \cup H_c} \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} w_{ci} q_i \leq Q_c && \forall l \in L, c \in C \label{capacity_limit} \\
+  & \sum\limits_{i \in R'} \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} w_{ci} q_i - \sum\limits_{i \in R'} \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} w_{ci} q_i \leq Q_c && \forall l \in L, c \in C \label{capacity_limit} \\
+  \intertext{Constraint \eqref{detour_ratio_limit} ensures detour time ratio of carpooling to exclusive riding for every riding requests not be larger than limit of the system.}
+  & \frac{\sum\limits_{p \in P_{cd_i}} \sum\limits_{l \in L} y_{p} \delta_{pl} w_{ci} t_{cl} - \sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L} x_{p} \delta_{pl} w_{ci} t_{cl}}{w_{ci} t_{ci}} \leq E && \forall c \in C, i \in R' \label{detour_ratio_limit} \\
+  \intertext{Constraint \eqref{custom_capacity_limit} ensures that riding requests not exceed capacity limit of the riding request}
+  % & \sum\limits_{i \in R' \cup H_c} \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} w_{ci} q_i - \sum\limits_{i \in R' \cup H_c} \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} w_{ci} q_i \leq h_i && \forall l \in L, c \in C \label{custom_capacity_limit}
+  & \sum\limits_{i \in R'} \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} w_{ci} q_i - \sum\limits_{i \in R'} \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} w_{ci} q_i \leq h_i && \forall l \in L, c \in C \label{custom_capacity_limit}
   % \intertext{Constraint 3.7 ensures the fairness index after current decision round will not less than the previous decision round.}
   % & \frac{\left(\sum\limits_{r \in R} b_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} b_r^2} \geq \alpha \\
   % \intertext{Constraint 3.8 is the fairness index in the previous decision round.}
