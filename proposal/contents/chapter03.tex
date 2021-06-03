@@ -121,8 +121,8 @@ A riding request consists with following parameters: origin node, destination no
     $f_{ci}$ & The fare rate of exclusive riding request $i \in R$ for driver $c \in C$ \\
     $E$ & Maximum detour time ratio of hitchhiking for passengers in a riding trip. \\
     $\delta_{pl}$ & Indicator function which is 1 if link $l \in L$ on the route $p \in P_c \cup P_{co_i} \cup P_{cd_i}$ \\
-    $r_c$ & Total fare that the driver $c \in C$ has earned before current decision round. \\
-    $\alpha$ & The fairness index in the previous decision round. \\
+    % $r_c$ & Total fare that the driver $c \in C$ has earned before current decision round. \\
+    $\alpha$ & The fairness index of driver's orders in previous decision round, the fairness index will be reset to 0 when the number of drivers in the system changes. \\
   \bottomrule
 \end{longtable}  
 \par
@@ -139,6 +139,7 @@ A riding request consists with following parameters: origin node, destination no
     $z_{p}$ & Binary variable, 1 if route $p \in P_c$ is chosen for driver $c \in C$; 0 otherwise. \\
     $w_{ci}$ & Binary variable, 1 if riding request $i \in R$ is chosen for driver $c \in C$; 0 otherwise. \\
     $s_{cl}$ & Binary variable, 1 if link $l \in L \cup L_O \cup L_D$ is passed by driver $c \in C$ in carpooling; 0 otherwise. \\
+    $\beta$ & The fairness index of driver's orders in current decision round. \\
   \bottomrule
 \end{longtable}  
 \newpage
@@ -176,8 +177,11 @@ The objective function is to maximize the minimum discount percentage when apply
   \intertext{Constraint \eqref{pick_up_drop_off_limit} ensures a riding request be picked up before dropping off.}
   & \sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L} x_{p} \delta_{pl} t_{cl} \leq \sum\limits_{p \in P_{cd_i}} \sum\limits_{l \in L} y_{p} \delta_{pl} t_{cl} && \forall c \in C, i \in R' \label{pick_up_drop_off_limit} \\
   %
+  \intertext{Constraints \eqref{artificial_link_limit} ensures a driver $c \in C$ pass the artificial links of origin nodes and destination nodes of orders that the driver has accepted. }
+  & s_{cl} \geq w_{ci}             && \forall l \in L_O \cup L_D, i \in R', c \in C \label{artificial_link_limit} \\
+  %
   \intertext{Constraints \eqref{overlap_limit_route}, \eqref{overlap_limit_origin}, \eqref{overlap_limit_destination} ensure paths to origin or destination is overlapped with the carpooling path. }
-  & \sum\limits_{p \in P_{c}} z_{p} \delta_{pl} = s_{cl} && \forall l \in L \cup L_O \cup L_D, c \in C \label{overlap_limit_route} \\
+  & \sum\limits_{p \in P_{c}} z_{p} \delta_{pl} \geq s_{cl} && \forall l \in L \cup L_O \cup L_D, c \in C \label{overlap_limit_route} \\
   & \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} \leq s_{cl} && \forall l \in L \cup L_O \cup L_D, i \in R', c \in C \label{overlap_limit_origin} \\
   & \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} \leq s_{cl} && \forall l \in L \cup L_O \cup L_D, i \in R', c \in C \label{overlap_limit_destination} \\
   %
@@ -191,13 +195,20 @@ The objective function is to maximize the minimum discount percentage when apply
   \intertext{Constraint \eqref{custom_capacity_limit} ensures that riding requests not exceed capacity limit of the riding request}
   % & \sum\limits_{i \in R' \cup H_c} \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} w_{ci} q_i - \sum\limits_{i \in R' \cup H_c} \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} w_{ci} q_i \leq h_i && \forall l \in L, c \in C \label{custom_capacity_limit}
   & \sum\limits_{i \in R'} \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} w_{ci} q_i - \sum\limits_{i \in R'} \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} w_{ci} q_i \leq h_i && \forall l \in L, c \in C \label{custom_capacity_limit} \\
+  %
+  \intertext{Constraint \eqref{driver_order_fairness} represents the fairness index of the number of orders accepted by drivers}
+  & \frac{(\sum\limits_{c \in C} \sum\limits_{i \in R'} w_{ci})^2}{|C| \sum\limits_{c \in C} (\sum\limits_{i \in R'} w_{ci})^2} = \beta         \label{driver_order_fairness}
+  %
+  \intertext{Constraint \eqref{fairness_order_comparison} ensures the fairness index of driver's orders be greater or the same as previous round.}
+  & \beta \geq \alpha                                       \label{fairness_order_comparison}
   % \intertext{Constraint 3.7 ensures the fairness index after current decision round will not less than the previous decision round.}
   % & \frac{\left(\sum\limits_{r \in R} b_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} b_r^2} \geq \alpha \\
   % \intertext{Constraint 3.8 is the fairness index in the previous decision round.}
   % & \frac{\left(\sum\limits_{r \in R} a_r\right)^2}{\sum\limits_{r \in R} 1 \sum\limits_{r \in R} a_r^2} \leq \alpha \\
-  \intertext{Constraint \eqref{bound_x}, \eqref{bound_y}, \eqref{bound_z}, \eqref{bound_w} ensure the upper bounds and the lower bounds of decision variables $x_p$, $y_p$, $z_p$ and $w_{ci}$ respectively.}
+  \intertext{Constraint \eqref{bound_x}, \eqref{bound_y}, \eqref{bound_z}, \eqref{bound_w}, \eqref{bound_s} ensure the upper bounds and the lower bounds of decision variables $x_p$, $y_p$, $z_p$, $w_{ci}$ and $s_{cl}$ respectively.}
   & x_p \in \{0, 1\} && \forall p \in P_{co_i}, c \in C, i \in R' \label{bound_x} \\
   & y_p \in \{0, 1\} && \forall p \in P_{cd_i}, c \in C, i \in R' \label{bound_y} \\
   & z_p \in \{0, 1\} && \forall p \in P_c, c \in C \label{bound_z} \\
-  & w_{ci} \in \{0, 1\} && \forall c \in C, i \in R' \label{bound_w}
+  & w_{ci} \in \{0, 1\} && \forall c \in C, i \in R' \label{bound_w} \\
+  & s_{cl} \in \{0, 1\} && \forall l \in L \cup L_O \cup L_D, c \in C \label{bound_s}
 \end{align}
