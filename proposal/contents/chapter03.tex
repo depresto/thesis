@@ -149,7 +149,8 @@ A riding request consists with following parameters: origin node, destination no
 The objective function is to maximize the minimum discount percentage when applying carpooling among passengers in one trip.
 
 \begin{align*}
-  \max_{i \in R} \min_{c \in C} \frac{w_{ci} f_{ci} - carpool\ cost_c}{w_{ci} f_{ci}} \tag{IP1} \\
+  & \underset{c \in C}{\operatorname{min}}\ \underset{i \in R'}{\operatorname{max}} \frac{w_{ci} t_{ci}}{w_{ci} t_{ci} - carpool\ cost_{ci}} \tag{IP1} \\
+  & \text{where}\ carpool\ cost_{ci} = \sum\limits_{l \in L} \sum\limits_{p \in P_c} x_p \delta_{pl} f_{cl}
 \end{align*}
 
 \subsubsection*{Constraints}
@@ -164,16 +165,18 @@ The objective function is to maximize the minimum discount percentage when apply
   & \sum\limits_{p \in P_{cd_i}} y_{p} \leq 1                               && \forall c \in C, i \in R' \label{path_limit_destination} \\
   & \sum\limits_{p \in P_{c}} z_{p} \leq 1                                  && \forall c \in C \label{path_limit} \\
   %
-  \intertext{Constraint \eqref{path_lower_bound} ensures a driver $c \in C$ have one path when the driver accepts any riding requests, where $M$ is an arbitrarily large number.}
-  & \sum\limits_{i \in R'} w_{ci}  \leq (\sum\limits_{p \in P_c} z_p) M     && \forall c \in C \label{path_lower_bound} \\
+  % \intertext{Constraint \eqref{path_lower_bound} ensures a driver $c \in C$ have one path when the driver accepts any riding requests, where $M$ is an arbitrarily large number.}
+  % & \sum\limits_{i \in R'} w_{ci}  \leq (\sum\limits_{p \in P_c} z_p) M     && \forall c \in C \label{path_lower_bound} \\
   %
-  \intertext{Constraint \eqref{path_upper_bound} ensures a driver $c \in C$ have no path when the driver does not accept any riding requests, where $\epsilon$ is an arbitrarily small number.}
-  & \sum\limits_{p \in P_c} z_p \leq \sum\limits_{i \in R'} w_{ci} + \epsilon   && \forall c \in C \label{path_upper_bound} \\
+  % \intertext{Constraint \eqref{path_upper_bound} ensures a driver $c \in C$ have no path when the driver does not accept any riding requests, where $\epsilon$ is an arbitrarily small number.}
+  % & \sum\limits_{p \in P_c} z_p \leq \sum\limits_{i \in R'} w_{ci} + \epsilon   && \forall c \in C \label{path_upper_bound} \\
   %
   \intertext{Constraint \eqref{riding_request_limit} ensures a riding request only be assigned by at most one driver.}
   & \sum\limits_{c \in C} w_{ci} \leq 1 && \forall i \in R' \label{riding_request_limit}
+  %
   % \intertext{Constraint \eqref{previous_riding_request} ensures every riding requests a driver has picked up in previous round are assigned.}
   % & w_{ci} = 1 && \forall i \in G_c \cup H_c, c \in C \label{previous_riding_request}
+  %
   \intertext{Constraint \eqref{pick_up_drop_off_limit} ensures a riding request be picked up before dropping off.}
   & \sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L} x_{p} \delta_{pl} t_{cl} \leq \sum\limits_{p \in P_{cd_i}} \sum\limits_{l \in L} y_{p} \delta_{pl} t_{cl} && \forall c \in C, i \in R' \label{pick_up_drop_off_limit} \\
   %
@@ -183,21 +186,20 @@ The objective function is to maximize the minimum discount percentage when apply
   \intertext{Constraints \eqref{overlap_limit_route}, \eqref{overlap_limit_origin}, \eqref{overlap_limit_destination} ensure paths to origin or destination is overlapped with the carpooling path. }
   & \sum\limits_{p \in P_{c}} z_{p} \delta_{pl} \geq s_{cl} && \forall l \in L \cup L_O \cup L_D, c \in C \label{overlap_limit_route} \\
   & \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} \leq s_{cl} && \forall l \in L \cup L_O \cup L_D, i \in R', c \in C \label{overlap_limit_origin} \\
-  & \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} \leq s_{cl} && \forall l \in L \cup L_O \cup L_D, i \in R', c \in C \label{overlap_limit_destination} \\
+  & \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} \leq s_{cl} && \forall l \in L \cup L_O \cup L_D, i \in R', c \in C \label{overlap_limit_destination}
   %
   \intertext{Constraint \eqref{capacity_limit} ensures that riding requests not exceed capacity of the cab}
-  % & \sum\limits_{i \in R' \cup H_c} \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} w_{ci} q_i - \sum\limits_{i \in R' \cup H_c} \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} w_{ci} q_i \leq Q_c && \forall l \in L, c \in C \label{capacity_limit} \\
   & \sum\limits_{i \in R'} \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} w_{ci} q_i - \sum\limits_{i \in R'} \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} w_{ci} q_i \leq Q_c && \forall l \in L, c \in C \label{capacity_limit} \\
   %
   \intertext{Constraint \eqref{detour_ratio_limit} ensures detour time ratio of carpooling to exclusive riding for every riding requests not be larger than limit of the system.}
-  & \frac{\sum\limits_{p \in P_{cd_i}} \sum\limits_{l \in L} y_{p} \delta_{pl} w_{ci} t_{cl} - \sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L} x_{p} \delta_{pl} w_{ci} t_{cl}}{w_{ci} t_{ci}} \leq E && \forall c \in C, i \in R' \label{detour_ratio_limit} \\
-  %
+  & \frac{\sum\limits_{p \in P_{cd_i}} \sum\limits_{l \in L} y_{p} \delta_{pl} w_{ci} t_{cl} - \sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L} x_{p} \delta_{pl} w_{ci} t_{cl}}{w_{ci} t_{ci}} \leq E && \forall c \in C, i \in R' \label{detour_ratio_limit}
+  % Upper & lower bounds
   \intertext{Constraint \eqref{custom_capacity_limit} ensures that riding requests not exceed capacity limit of the riding request}
   % & \sum\limits_{i \in R' \cup H_c} \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} w_{ci} q_i - \sum\limits_{i \in R' \cup H_c} \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} w_{ci} q_i \leq h_i && \forall l \in L, c \in C \label{custom_capacity_limit}
   & \sum\limits_{i \in R'} \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} w_{ci} q_i - \sum\limits_{i \in R'} \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} w_{ci} q_i \leq h_i && \forall l \in L, c \in C \label{custom_capacity_limit} \\
   %
-  \intertext{Constraint \eqref{driver_order_fairness} represents the fairness index of the number of orders accepted by drivers}
-  & \frac{(\sum\limits_{c \in C} \sum\limits_{i \in R'} w_{ci})^2}{|C| \sum\limits_{c \in C} (\sum\limits_{i \in R'} w_{ci})^2} = \beta         \label{driver_order_fairness}
+  \intertext{Constraint \eqref{driver_order_quantity_fairness} represents the fairness index of the number of orders accepted by drivers}
+  & \frac{(\sum\limits_{c \in C} \sum\limits_{i \in R'} w_{ci})^2}{|C| \sum\limits_{c \in C} (\sum\limits_{i \in R'} w_{ci})^2} = \beta         \label{driver_order_quantity_fairness}
   %
   \intertext{Constraint \eqref{fairness_order_comparison} ensures the fairness index of driver's orders be greater or the same as previous round.}
   & \beta \geq \alpha                                       \label{fairness_order_comparison}
@@ -211,4 +213,7 @@ The objective function is to maximize the minimum discount percentage when apply
   & z_p \in \{0, 1\} && \forall p \in P_c, c \in C \label{bound_z} \\
   & w_{ci} \in \{0, 1\} && \forall c \in C, i \in R' \label{bound_w} \\
   & s_{cl} \in \{0, 1\} && \forall l \in L \cup L_O \cup L_D, c \in C \label{bound_s}
+  % 
+  \intertext{Constraint \eqref{bound_fairness_index_beta} ensures  the upper bounds and the lower bounds of decision variables $\beta$.}
+  & \frac{1}{|C|} \leq \beta \leq 1                      \label{bound_fairness_index_beta}
 \end{align}
