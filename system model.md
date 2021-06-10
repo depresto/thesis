@@ -45,8 +45,9 @@
 - $f_{cl}$：駕駛 $c$ 在 link $l$ 上的行駛所要花費的車資，$c \in C, l \in L$
 - $f_{ci}$：駕駛 $c$ 專程接送第 $i$ 筆訂單從起始節點至到達節點所需花費的車資，$c \in C, i \in R$
 - $\delta_{pl}$：為一 Indicator function， 若 link $l$ 在路徑 $p$ 上為 1，否則為 0，$l \in L, p \in P_c \cup P_{co_i} \cup P_{cd_i}$
-- $\alpha$：上個決策週期駕駛接單數的 fairness index，若系統中駕駛數量有增減，則該 fairness index 重設為 0
-- $r_c$：駕駛 $c$ 自 fairness index 重設以來所累積的總車資收入 $c \in C$
+- $r_c$：駕駛 $c$ 自 fairness index 重設以來至上個決策週期所累積的總車資收入 $c \in C$
+- $\alpha$：上個決策週期駕駛收益的 fairness index，若系統中駕駛數量有增減，則該 fairness index 重設為 0
+- $\gamma$：上個決策週期乘客共乘效益比的 fairness index，共乘效益比為資費減少量與繞路增加量的比例，若系統中駕駛數量有增減，則該 fairness index 重設為 0
 
 ## 決策變數
 
@@ -54,8 +55,13 @@
 - $y_{p}$：為一個二元變數, 若 $p$ 路徑有被駕駛 $c$ 選擇時為 1，否則為 0，$p \in P_{cd_i}, c \in C, i \in R, d_i \in D$
 - $z_{p}$：為一個二元變數, 若 $p$ 路徑有被駕駛 $c$ 選擇時為 1，否則為 0，$p \in P_{c}, c \in C$
 - $w_{ci}$：為一個二元變數, 若駕駛 $c$ 接受第 $i$ 筆訂單時為 1，否則為 0，$c \in C, i \in R$
+- $j_c$：駕駛 $c$ 自 fairness index 重設以來至本決策週期所累積的總車資收入 $c \in C$
 - $s_{cl}$：為一個二元變數, 若駕駛 $c$ 在共乘路徑上有經過 $l$ link時為 1，否則為 0，$c \in C, l \in L \cup L_O \cup L_D$
-- $\beta$：當前決策週期駕駛接單數的 fairness index
+- $k_{ci}$：第 $i$ 筆訂單在駕駛 $c$ 共乘下的共乘車資Ｍ$c \in C, i \in R'$
+- $a_{ci}$：第 $i$ 筆訂單在駕駛 $c$ 共乘下額外繞路的增加量，$c \in C, i \in R'$
+- $b_{ci}$：第 $i$ 筆訂單在駕駛 $c$ 共乘下節省資費的減少量，$c \in C, i \in R'$
+- $\beta$：目前決策週期駕駛收益的 fairness index
+- $\phi$：目前決策週期乘客共乘效益比的 fairness index，共乘效益比為資費減少量與繞路增加量的比例
 
 ## 目標函數
 
@@ -87,7 +93,8 @@ $$
 - 限制式 $\eqref{waiting_time_start}$ 確保接送開始時間符合訂單要求
 $$
 \begin{align}
-& \sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L} x_{p} \delta_{pl} t_{cl} 
+&
+\sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L} x_{p} \delta_{pl} t_{cl} 
 \geq t_i - T
 &&
 \forall c \in C, i \in R'
@@ -135,7 +142,7 @@ $$
 & s_{cl} \geq w_{ci}             && \forall l \in L_O \cup L_D, i \in R', c \in C \label{artificial_link_limit}\tag{3.8} \\
 \end{align}
 $$
-- 限制式 $\eqref{overlap_limit_route}, \eqref{overlap_limit_origin}, \eqref{overlap_limit_destination}$ 確保司機從當前位置到司機接受訂單的起迄點所形成的路徑與共乘路徑重疊
+- 限制式 $\eqref{overlap_limit_route}, \eqref{overlap_limit_origin}, \eqref{overlap_limit_destination}$ 確保司機從目前位置到司機接受訂單的起迄點所形成的路徑與共乘路徑重疊
 $$
 \begin{align}
 & \sum\limits_{p \in P_{c}} z_{p} \delta_{pl} \geq s_{cl} && \forall l \in L \cup L_O \cup L_D, c \in C \label{overlap_limit_route}\tag{3.9} \\
@@ -175,7 +182,8 @@ $$
 - 限制式 $\eqref{detour_ratio_limit}$ 確保共乘後的繞路時程比例不會超過訂單的要求
 $$
 \begin{align}
-& \frac{
+&
+\frac{
 	\sum\limits_{p \in P_{cd_i}} \sum\limits_{l \in L} y_{p} \delta_{pl} t_{cl} - 
 	\sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L} x_{p} \delta_{pl} t_{cl}
 }
@@ -188,58 +196,153 @@ $$
 \label{detour_ratio_limit}\tag{3.16} \\
 \end{align}
 $$
-- 限制式 $\eqref{discount_ratio_limit}$ 確保共乘後的節費比例符合訂單要求 ($\epsilon$ 為一極小常數)
+- 限制式 $\eqref{carpooling_fair}, \eqref{discount_ratio_limit}$ 確保共乘後的節費比例符合訂單要求 ($\epsilon$ 為一極小常數)
 $$
 \begin{align}
 & \frac{
-	\sum\limits_{p \in P_{cd_i}} \sum\limits_{l \in L} y_{p} \delta_{pl} f_{cl} - 
-	\sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L} x_{p} \delta_{pl} f_{cl}
+	q_i
+	(
+		\sum\limits_{p \in P_{cd_i}} \sum\limits_{l \in L} y_{p} \delta_{pl} f_{cl} - 
+		\sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L} x_{p} \delta_{pl} f_{cl}
+	)
 } 
 {
-	f_{ci} 
 	(
 		\sum\limits_{i \in R'} \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} q_i - 
 		\sum\limits_{i \in R'} \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} q_i +
 		\epsilon
 	)
+}
+= k_{ci}
+&&
+\forall c \in C, i \in R'
+\label{carpooling_fair}\tag{3.17} \\
+& \frac{
+	k_{ci}
 } 
+{
+	f_{ci} 
+}
 \geq g_i
 && 
 \forall c \in C, i \in R'
-\label{discount_ratio_limit}\tag{3.17} \\
+\label{discount_ratio_limit}\tag{3.18} \\
 \end{align}
 $$
 - 限制式 $\eqref{custom_capacity_limit}$ 確保共乘中乘客人數不會超出訂單要求的共乘人數（在任何共乘經過的 link 中，車上的人數都不能超過限制）
 $$
 \begin{align}
-  & \sum\limits_{i \in R'} \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} q_i - \sum\limits_{i \in R'} \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} q_i \leq h_i && \forall l \in L, c \in C \label{custom_capacity_limit}\tag{3.17} \\
-\end{align}
-$$ 
-- 限制式 $\eqref{driver_order_quantity_fairness}$ 為駕駛接單量的 fairness index 的計算方式
-$$
-\begin{align}
-& \frac{(\sum\limits_{c \in C} \sum\limits_{i \in R'} w_{ci})^2}{|C| \sum\limits_{c \in C} (\sum\limits_{i \in R'} w_{ci})^2} = \beta         \label{driver_order_quantity_fairness}\tag{3.18} \\
-\end{align}
-$$
-- 限制式 $\eqref{fairness_order_comparison}$ 確保本決策週期 fairness index 不會少於上個決策週期
-$$
-\begin{align}
-& \beta \geq \alpha                                       \label{fairness_order_comparison}\tag{3.19} \\
+& \sum\limits_{i \in R'} \sum\limits_{p \in P_{cd_i}} y_{p} \delta_{pl} q_i -
+\sum\limits_{i \in R'} \sum\limits_{p \in P_{co_i}} x_{p} \delta_{pl} q_i 
+\leq h_i 
+&& 
+\forall l \in L, c \in C 
+\label{custom_capacity_limit}\tag{3.19} \\
 \end{align}
 $$
-- 限制式 $\eqref{bound_x}, \eqref{bound_y}, \eqref{bound_z}, \eqref{bound_w}, \eqref{bound_s}$ 為決策變數 $x_p$, $y_p$, $z_p$, $w_{ci}$, $s_{cl}$ 的上下界
+- 限制式 $\eqref{accumulate_fair}, \eqref{driver_order_quantity_fairness}$ 為駕駛接單量的 fairness index 的計算方式
 $$
 \begin{align}
-& x_p \in \{0, 1\} && \forall p \in P_{co_i}, c \in C, i \in R' \label{bound_x}\tag{3.20} \\
-& y_p \in \{0, 1\} && \forall p \in P_{cd_i}, c \in C, i \in R' \label{bound_y}\tag{3.21} \\
-& z_p \in \{0, 1\} && \forall p \in P_c, c \in C \label{bound_z}\tag{3.22} \\
-& w_{ci} \in \{0, 1\} && \forall c \in C, i \in R' \label{bound_w}\tag{3.23} \\
-& s_{cl} \in \{0, 1\} && \forall l \in L \cup L_O \cup L_D, c \in C \label{bound_s}\tag{3.24} \\
+&
+r_c + \sum\limits_{p \in P_c} \sum\limits_{l \in L} z_{p} \delta_{pl} f_{cl}
+= j_c
+&&
+\forall c \in C
+\label{accumulate_fair}\tag{3.20} \\
+\\
+&
+\frac{
+	(
+		\sum\limits_{c \in C} j_c
+	)^2
+}
+{
+	|C| \sum\limits_{c \in C}
+	(
+		j_c
+	)^2
+}
+= \beta         
+\label{driver_order_quantity_fairness}\tag{3.21} \\
 \end{align}
 $$
-- 限制式 $\eqref{bound_fairness_index_beta}$ 為決策變數 $\beta$ 的上下界
+- 限制式 $\eqref{detour_amount}, \eqref{fair_discount_amount}, \eqref{passenger_carpooling_effectiveness_fairness}$ 為乘客共乘效益的 fairness index 的計算方式
 $$
 \begin{align}
-& \frac{1}{|C|} \leq \beta \leq 1                      \label{bound_fairness_index_beta}\tag{3.25} \\
+&
+\sum\limits_{p \in P_{cd_i}} \sum\limits_{l \in L} y_{p} \delta_{pl} t_{cl} - 
+\sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L} x_{p} \delta_{pl} t_{cl} -
+t_{ci}
+= a_{ci}
+&&
+\forall c \in C, i \in R'
+\label{detour_amount}\tag{3.22} \\
+&
+f_{ci} - k_{ci}
+= b_{ci}
+&&
+\forall c \in C, i \in R'
+\label{fair_discount_amount}\tag{3.23} \\
+&
+\frac{
+	(
+		\sum\limits_{c \in C} \frac{b_{ci}}{a_{ci}}
+	)^2
+}
+{
+	|C| \sum\limits_{c \in C}
+	(
+		\frac{b_{ci}}{a_{ci}}
+	)^2
+}
+= \phi         
+\label{passenger_carpooling_effectiveness_fairness}\tag{3.24} \\
+\end{align}
+$$
+- 限制式 $\eqref{revenue_fairness_comparison}, \eqref{passenger_carpooling_effectiveness_fairness_comparison}$ 確保本決策週期 fairness index 不會少於上個決策週期
+$$
+\begin{align}
+&
+\beta \geq \alpha                                       \label{revenue_fairness_comparison}\tag{3.25} \\
+& 
+\phi \geq \gamma                                       
+\label{passenger_carpooling_effectiveness_fairness_comparison}\tag{3.26} \\
+\end{align}
+$$
+- 限制式 $\eqref{bound_x}, \eqref{bound_y}, \eqref{bound_z}, \eqref{bound_w}, \eqref{bound_s}$ 為決策變數 $x_p, y_p, z_p, w_{ci}, s_{cl}$ 的上下界
+$$
+\begin{align}
+& x_p \in \{0, 1\} && \forall p \in P_{co_i}, c \in C, i \in R' \label{bound_x}\tag{3.27} \\
+& y_p \in \{0, 1\} && \forall p \in P_{cd_i}, c \in C, i \in R' \label{bound_y}\tag{3.28} \\
+& z_p \in \{0, 1\} && \forall p \in P_c, c \in C \label{bound_z}\tag{3.29} \\
+& w_{ci} \in \{0, 1\} && \forall c \in C, i \in R' \label{bound_w}\tag{3.30} \\
+& s_{cl} \in \{0, 1\} && \forall l \in L \cup L_O \cup L_D, c \in C \label{bound_s}\tag{3.31} \\
+\end{align}
+$$
+- 限制式 $\eqref{bound_k}, \eqref{bound_a}, \eqref{bound_b}$ 為決策變數 $k_{ci}, a_{ci}, b_{ci}$ 的上下界
+$$
+\begin{align}
+&
+0 \leq k_{ci} \leq f_{ci}
+&&
+\forall c \in C, i \in R'
+\label{bound_k}\tag{3.32} \\
+&
+0 \leq a_{ci}
+&&
+\forall c \in C, i \in R'
+\label{bound_a}\tag{3.33} \\
+&
+0 \leq b_{ci}
+&&
+\forall c \in C, i \in R'
+\label{bound_b}\tag{3.34} \\
+\end{align}
+$$
+- 限制式 $\eqref{bound_fairness_index_beta}, \eqref{bound_fairness_index_phi}$ 為決策變數 $\beta, \phi$ 的上下界
+$$
+\begin{align}
+& \frac{1}{|C|} \leq \beta \leq 1                      \label{bound_fairness_index_beta}\tag{3.35} \\
+& \frac{1}{|C|} \leq \phi \leq 1                      \label{bound_fairness_index_phi}\tag{3.36} \\
 \end{align}
 $$
