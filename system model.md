@@ -21,7 +21,7 @@
 - $N$：系統路網中所有 nodes 的集合，包含駕駛當下位置、所有訂單的起點與終點，$N \in C \cup O \cup D$
 - $L$：系統路網中所有 links 的集合，路網中任意兩 nodes 即為一 link
 - $o_i$：第 $i$ 筆訂單的起始點， $i \in R$, $o_i \in O$
-- $d_i$：第 $i$ 筆訂單的到達點， $i \in R$, $d_i \in D$
+- $d_i$：第 $i$ 筆訂單的到達點， $i \in R$, $d_i \in u_iD$
 - $q_i$：第 $i$ 筆訂單的乘客人數， $i \in R$
 - $q^{male}_i$：第 $i$ 筆訂單的男性乘客人數， $i \in R$
 - $q^{female}_i$：第 $i$ 筆訂單的女性乘客人數， $i \in R$
@@ -31,8 +31,8 @@
 - $n^{male}_i$：第 $i$ 筆訂單的男性人數限制，若該車限制只能有女性，則 $n^{male}_i = 0$， $i \in R$
 - $n^{female}_i$：第 $i$ 筆訂單的女性人數限制，若該車限制只能有男性，則 $n^{female}_i = 0$， $i \in R$
 - $h_i$：第 $i$ 筆訂單所要求的最大共乘人數限制， $i \in R$
-- $t_i$：在當下決策週期中，距離第 $i$ 筆訂單開始等待乘車時間的所剩時間， $i \in R$
-- $u_i$：在當下決策週期中，距離第 $i$ 筆訂單結束等待乘車時間的所剩時間， $i \in R$
+- $u_i$：在當下決策週期中，距離第 $i$ 筆訂單開始等待乘車時間的所剩時間， $i \in R$
+- $v_i$：在當下決策週期中，距離第 $i$ 筆訂單結束等待乘車時間的所剩時間， $i \in R$
 - $T$：系統中等待乘車時間的額外緩衝時間
 - $Q_c$：駕駛 $c$ 車上的最大允許乘車人數， $c \in C$
 - $L_{O}$：系統中所有訂單的起始點由 Node splitting 技術所產生的 artificial links 的集合
@@ -95,7 +95,7 @@ $$
 \begin{align}
 &
 \sum\limits_{p \in P_{co_i}} \sum\limits_{l \in L \cup L_O \cup L_D} x_{p} \delta_{pl} t_{cl} 
-\geq t_i - T
+\geq u_i - T
 &&
 \forall c \in C, i \in R'
 \label{waiting_time_start} \tag{3.1}\\
