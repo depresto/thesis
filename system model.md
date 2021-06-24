@@ -232,7 +232,7 @@ $$
 {
 	f_{ci} 
 }
-\geq g_i
+\leq g_i
 && 
 \forall c \in C, i \in R'
 \label{discount_ratio_limit}\tag{3.18} \\
